@@ -1,11 +1,11 @@
-package ma.youcode.lineperm.service.User;
+package ma.youcode.lineperm.model;
 class User{
 // variables
-	private login String;
-	private passwordHash String;
+	private String login;
+	private String passwordHash ;
 
 // constructure
-    public __constract(String login, String passwordHash){
+    public __construct(String login, String passwordHash){
         this.login = login;
         this.passwordHash = passwordHash;
     }
@@ -30,5 +30,5 @@ class User{
     public String toString(String login, String passwordHash){
         return this.login + ":" + this.passwordHash;
     }
-    
+
 }

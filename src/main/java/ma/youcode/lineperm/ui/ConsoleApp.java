@@ -1,6 +1,6 @@
-package ma.youcode.lineperm.service.ConsoleApp;
+package ma.youcode.lineperm.ui;
 class ConsoleApp{
-	public static void main(string [] args){
+	public static void main(String [] args){
 
 	}
 }

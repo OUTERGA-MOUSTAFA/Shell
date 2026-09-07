@@ -1,6 +1,6 @@
-package ma.youcode.lineperm
+package ma.youcode.lineperm;
 class Main{
-	public static void main(string [] args){
+	public static void main(String [] args){
 		
 	}
 }

@@ -5,6 +5,8 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.mindrot.jbcrypt.BCrypt;
+
 class UserService {
 	private final Map<String, User> users = new HashMap<>();
     private final Path storagePath = Paths.get("users.txt");
@@ -25,6 +27,20 @@ class UserService {
 
         return user; // succès
 	  }
+    }
+
+	public boolean creerCompte(String login, String password) {
+        if (login == null || login.trim().isEmpty() || login.contains(":")) return false;
+        if (password == null || password.isEmpty()) return false;
+        if (existe(login)) return false;
+
+        String salt = BCrypt.gensalt();
+        String hashed = BCrypt.hashpw(password, salt);
+
+        User newUser = new User(login, hashed);
+        users.put(login, newUser);
+        saveUsers();
+        return true;
     }
 
 

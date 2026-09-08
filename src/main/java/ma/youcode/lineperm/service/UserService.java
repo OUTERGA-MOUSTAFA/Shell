@@ -7,6 +7,8 @@ import java.util.Map;
 
 import org.mindrot.jbcrypt.BCrypt;
 
+import ma.youcode.lineperm.model.User;
+
 class UserService {
 	private final Map<String, User> users = new HashMap<>();
     private final Path storagePath = Paths.get("users.txt");

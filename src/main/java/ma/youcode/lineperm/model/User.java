@@ -1,5 +1,5 @@
 package ma.youcode.lineperm.model;
-class User{
+public  class User{
 // variables
 	private String login;
 	private String passwordHash ;
@@ -14,7 +14,7 @@ class User{
     public String getLogin(){
         return login;
     }
-    public String getPasswordHaash(){
+    public String getPasswordHash(){
         return passwordHash;
     }
 
@@ -27,7 +27,7 @@ class User{
     }
 
 // override 
-    public String toString(String login, String passwordHash){
+    public String toString(){
         return this.login + ":" + this.passwordHash;
     }
 

@@ -2,11 +2,13 @@ package ma.youcode.lineperm.ui;
 
 import java.util.Scanner;
 
+import ma.youcode.lineperm.model.User;
+
 class ConsoleApp {
 
     // private UserService userService = new UserService();
     private Scanner scanner = new Scanner(System.in);
-    // private User utilisateurConnecte = null;
+    private User utilisateurConnecte = null;
 
     public void demarrer() {
         System.out.println("=========================");
@@ -34,7 +36,7 @@ class ConsoleApp {
                 System.out.println("Vous êtes déjà connecté. Faites 'logout' d'abord.");
                 continue;
             }
-            
+
             switch (commande) {
                 case "signup":
                     handleSignup();

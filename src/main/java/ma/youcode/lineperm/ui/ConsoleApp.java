@@ -18,6 +18,7 @@ public class ConsoleApp {
 
         String commande;
         while (true) {
+            afficherPrompt(); 
 
             String ligne = scanner.nextLine().trim();
             if (ligne.isEmpty())
@@ -55,8 +56,16 @@ public class ConsoleApp {
                     System.out.println("Commande inconnue. Tapez 'help'.");
                     break;
             }
-        } ;
+        };
         scanner.close();
+    }
+
+     private void afficherPrompt() {
+        if (utilisateurConnecte != null) {
+            System.out.print(utilisateurConnecte.getLogin() + "@linperm> ");
+        } else {
+            System.out.print("linperm> ");
+        }
     }
 
     // hundels exeptions

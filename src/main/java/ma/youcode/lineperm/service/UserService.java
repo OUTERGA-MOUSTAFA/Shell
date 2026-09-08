@@ -9,7 +9,7 @@ import org.mindrot.jbcrypt.BCrypt;
 
 import ma.youcode.lineperm.model.User;
 
-class UserService {
+public class UserService {
 	private final Map<String, User> users = new HashMap<>();
     private final Path storagePath = Paths.get("users.txt");
 
@@ -41,7 +41,7 @@ class UserService {
 
         User newUser = new User(login, hashed);
         users.put(login, newUser);
-        saveUsers();
+        saveUser();
         return true;
     }
 

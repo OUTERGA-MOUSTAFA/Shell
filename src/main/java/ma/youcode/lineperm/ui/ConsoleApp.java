@@ -4,9 +4,9 @@ import java.util.Scanner;
 
 import ma.youcode.lineperm.model.User;
 
-class ConsoleApp {
+public class ConsoleApp {
 
-    // private UserService userService = new UserService();
+    private UserService userService = new UserService();
     private Scanner scanner = new Scanner(System.in);
     private User utilisateurConnecte = null;
 

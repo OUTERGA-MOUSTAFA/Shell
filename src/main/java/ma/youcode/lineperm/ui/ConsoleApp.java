@@ -3,6 +3,7 @@ package ma.youcode.lineperm.ui;
 import java.util.Scanner;
 
 import ma.youcode.lineperm.model.User;
+import ma.youcode.lineperm.service.UserService;
 
 public class ConsoleApp {
 
@@ -16,7 +17,7 @@ public class ConsoleApp {
         System.out.println("=========================");
 
         String commande;
-        do {
+        while (true) {
 
             String ligne = scanner.nextLine().trim();
             if (ligne.isEmpty())
@@ -39,7 +40,7 @@ public class ConsoleApp {
 
             switch (commande) {
                 case "signup":
-                    handleSignup();
+                    handleSignup();;
                     break;
                 case "login":
                     handleLogin();
@@ -47,11 +48,14 @@ public class ConsoleApp {
                 case "logout":
                     handleLogout();
                     break;
+                 case "exit":
+                    System.out.println("Au revoir.");
+                    break;
                 default:
                     System.out.println("Commande inconnue. Tapez 'help'.");
                     break;
             }
-        } while (!"exit".equals(commande));
+        } ;
         scanner.close();
     }
 
@@ -82,33 +86,6 @@ public class ConsoleApp {
             System.out.println("Erreur lors de la création.");
         }
 
-    }
-
-    private void handleSignup() {
-        System.out.print("Login : ");
-        String login = scanner.nextLine().trim();
-        if (login.isEmpty() || login.contains(":")) {
-            System.out.println("Login invalide (ne doit pas contenir ':').");
-            return;
-        }
-        if (userService.existe(login)) {
-            System.out.println("Ce login existe déjà.");
-            return;
-        }
-
-        System.out.print("Mot de passe : ");
-        String password = scanner.nextLine();
-        if (password.isEmpty()) {
-            System.out.println("Mot de passe invalide.");
-            return;
-        }
-
-        boolean success = userService.creerCompte(login, password);
-        if (success) {
-            System.out.println("Compte créé avec succès.");
-        } else {
-            System.out.println("Erreur lors de la création.");
-        }
     }
 
     private void handleLogin() {

@@ -5,7 +5,7 @@ class User{
 	private String passwordHash ;
 
 // constructure
-    public __construct(String login, String passwordHash){
+    public User(String login, String passwordHash){
         this.login = login;
         this.passwordHash = passwordHash;
     }

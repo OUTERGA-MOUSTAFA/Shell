@@ -16,6 +16,19 @@ public class UserService {
 	private final Map<String, User> users = new HashMap<>();
     private final Path storagePath = Paths.get("users.txt");
 
+	public static void main(String [] args){
+
+	  public User connecter(String login, String password) {
+        User user = users.get(login);
+        if (user == null) return null; // login inconnu
+
+        boolean check = BCrypt.checkpw(password, user.getPasswordHash());
+        if (!check) return null; // mauvais password (même message que login inconnu)
+
+        return user; // succès
+	  }
+    }
+
 
 	public boolean existe(String login) {
         return users.containsKey(login);
@@ -39,18 +52,7 @@ public class UserService {
         }
     }
 	
-	public static void main(String [] args){
-
-	  public User connecter(String login, String password) {
-        User user = users.get(login);
-        if (user == null) return null; // login inconnu
-
-        boolean check = BCrypt.checkpw(password, user.getPasswordHash());
-        if (!check) return null; // mauvais password (même message que login inconnu)
-
-        return user; // succès
-	  }
-    }
+	
 
 	public boolean creerCompte(String login, String password) {
         if (login == null || login.trim().isEmpty() || login.contains(":")) return false;
@@ -62,8 +64,21 @@ public class UserService {
 
         User newUser = new User(login, hashed);
         users.put(login, newUser);
-        saveUser();
+        saveUsers();
         return true;
+    }
+
+
+	 private void saveUsers() {
+        StringBuilder content = new StringBuilder();
+        for (User user : users.values()) {
+            content.append(user.toString()).append(System.lineSeparator());
+        }
+        try {
+            Files.writeString(storagePath, content.toString());
+        } catch (IOException e) {
+            System.err.println("Erreur sauvegarde comptes : " + e.getMessage());
+        }
     }
 
 

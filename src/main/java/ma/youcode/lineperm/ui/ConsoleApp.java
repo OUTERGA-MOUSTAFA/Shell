@@ -66,6 +66,15 @@ public class ConsoleApp {
         scanner.close();
     }
 
+
+     private void showHelp() {
+        if (utilisateurConnecte == null) {
+            System.out.println("Commandes : signup | login | help | exit");
+        } else {
+            System.out.println("Commandes : logout | help | exit");
+        }
+    }
+    
     private void afficherPrompt() {
         if (utilisateurConnecte != null) {
             System.out.print(utilisateurConnecte.getLogin() + "@linperm> ");

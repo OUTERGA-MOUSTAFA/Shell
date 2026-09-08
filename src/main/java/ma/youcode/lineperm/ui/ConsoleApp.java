@@ -18,7 +18,7 @@ public class ConsoleApp {
 
         String commande;
         while (true) {
-            afficherPrompt(); 
+            afficherPrompt();
 
             String ligne = scanner.nextLine().trim();
             if (ligne.isEmpty())
@@ -28,12 +28,13 @@ public class ConsoleApp {
             commande = mots[0].toLowerCase();
 
             // GARDE 1 : Commande qui nécessite connexion (ex: logout)
-            if (utilisateurConnecte == null && (commande.equals("logout") || commande.equals("ls") || commande.equals("touch"))) {
+            if (utilisateurConnecte == null
+                    && (commande.equals("logout") || commande.equals("ls") || commande.equals("touch"))) {
                 System.out.println("Vous devez être connecté pour cette commande.");
                 continue;
             }
 
-             // GARDE 2 : Déjà connecté, on refuse signup/login
+            // GARDE 2 : Déjà connecté, on refuse signup/login
             if (utilisateurConnecte != null && (commande.equals("signup") || commande.equals("login"))) {
                 System.out.println("Vous êtes déjà connecté. Faites 'logout' d'abord.");
                 continue;
@@ -41,7 +42,8 @@ public class ConsoleApp {
 
             switch (commande) {
                 case "signup":
-                    handleSignup();;
+                    handleSignup();
+                    ;
                     break;
                 case "login":
                     handleLogin();
@@ -49,18 +51,22 @@ public class ConsoleApp {
                 case "logout":
                     handleLogout();
                     break;
-                 case "exit":
+                case "help":
+                    showHelp();
+                    break;
+                case "exit":
                     System.out.println("Au revoir.");
                     break;
                 default:
                     System.out.println("Commande inconnue. Tapez 'help'.");
                     break;
             }
-        };
+        }
+        ;
         scanner.close();
     }
 
-     private void afficherPrompt() {
+    private void afficherPrompt() {
         if (utilisateurConnecte != null) {
             System.out.print(utilisateurConnecte.getLogin() + "@linperm> ");
         } else {

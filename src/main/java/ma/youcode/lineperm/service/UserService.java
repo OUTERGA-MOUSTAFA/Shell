@@ -1,8 +1,11 @@
 package ma.youcode.lineperm.service;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.mindrot.jbcrypt.BCrypt;
@@ -18,6 +21,24 @@ public class UserService {
         return users.containsKey(login);
     }
 
+	private void loadUsers() {
+        if (!Files.exists(storagePath)) {
+            return; // Premier lancement, mafihach erreur
+        }
+        try {
+            List<String> lines = Files.readAllLines(storagePath);
+            for (String line : lines) {
+                String[] parts = line.split(":", 2);
+                if (parts.length == 2) {
+                    User user = new User(parts[0], parts[1]);
+                    users.put(user.getLogin(), user);
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Erreur chargement comptes : " + e.getMessage());
+        }
+    }
+	
 	public static void main(String [] args){
 
 	  public User connecter(String login, String password) {

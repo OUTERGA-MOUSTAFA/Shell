@@ -13,7 +13,7 @@ public class ConsoleApp {
 
     public void demarrer() {
         System.out.println("=========================");
-        System.out.println("LinPerm - gestion de fichiers & droits");
+        System.out.println("LinePerm - gestion de fichiers & droits");
         System.out.println("=========================");
 
         String commande;

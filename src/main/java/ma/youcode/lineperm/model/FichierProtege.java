@@ -65,11 +65,9 @@ public class FichierProtege {
         return this.dAutre = v;
     }
 
-    // --- Format d'affichage : rwd|r-- ---
+    //Format exact XXX|XXX, 3 positions par bloc: rwd|r-- ---
     public String droitsToString() {
-        return (rProp ? "r" : "-") + (wProp ? "w" : "-") + (dProp ? "d" : "-")
-                + "|"
-                + (rAutre ? "r" : "-") + (wAutre ? "w" : "-") + (dAutre ? "d" : "-");
+        return (rProp ? "r" : "-") + (wProp ? "w" : "-") + (dProp ? "d" : "-") + "|" + (rAutre ? "r" : "-") + (wAutre ? "w" : "-") + (dAutre ? "d" : "-");
     }
 
     @Override

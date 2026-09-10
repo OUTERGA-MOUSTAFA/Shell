@@ -56,14 +56,13 @@ public class ConsoleApp {
                     break;
                 case "exit":
                     System.out.println("Au revoir.");
-                    break;
+                    scanner.close();
+                    return ;
                 default:
                     System.out.println("Commande inconnue. Tapez 'help'.");
                     break;
             }
         }
-        ;
-        scanner.close();
     }
 
 
@@ -77,7 +76,7 @@ public class ConsoleApp {
     
     private void afficherPrompt() {
         if (utilisateurConnecte != null) {
-            System.out.print(utilisateurConnecte.getLogin() + "@linperm> ");
+            System.out.print(utilisateurConnecte.getLogin() + "@linperm>wrd| ");
         } else {
             System.out.print("linperm> ");
         }
@@ -135,4 +134,5 @@ public class ConsoleApp {
         utilisateurConnecte = null;
         System.out.println("Déconnecté.");
     }
+    
 }

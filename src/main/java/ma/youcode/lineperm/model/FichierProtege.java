@@ -72,7 +72,7 @@ public class FichierProtege {
 
     @Override
     public String toString() {
-        return droitsToString() + " " + this.Proprietaire + " " + this.nom;
+        return droitsToString()/*=> rwd|r-- */ + " " + this.Proprietaire + " " + this.nom;
     }
 
 }

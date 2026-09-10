@@ -7,11 +7,22 @@ public class FichierProtege {
     private boolean rProp, wProp, dProp;
     private boolean rAutre, wAutre, dAutre;
 
-    public FichierProtege(String nom, String Proprietaire, boolean rProp, boolean wProp, boolean dProp, boolean rAutre,
+    // 1. Constructeur court
+    public FichierProtege(String nom, String proprietaire) {
+        this(nom, proprietaire, true, true, true, false, false, false);
+    }
+
+    // 2. Constructeur long
+    public FichierProtege(String nom, String proprietaire, boolean rProp, boolean wProp, boolean dProp, boolean rAutre,
             boolean wAutre, boolean dAutre) {
         this.nom = nom;
-        this.Proprietaire = Proprietaire;
-
+        this.Proprietaire = proprietaire;
+        this.rProp = rProp;
+        this.wProp = wProp;
+        this.dProp = dProp;
+        this.rAutre = rAutre;
+        this.wAutre = wAutre;
+        this.dAutre = dAutre;
     }
 
     public String getNom() {
@@ -53,8 +64,8 @@ public class FichierProtege {
     public boolean setdAutre(boolean v) {
         return this.dAutre = v;
     }
-    
-    // --- Format d'affichage : rwd|r--  ---
+
+    // --- Format d'affichage : rwd|r-- ---
     public String droitsToString() {
         return (rProp ? "r" : "-") + (wProp ? "w" : "-") + (dProp ? "d" : "-")
                 + "|"

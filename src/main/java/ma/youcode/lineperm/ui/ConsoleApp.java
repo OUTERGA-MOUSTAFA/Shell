@@ -10,78 +10,81 @@ import ma.youcode.lineperm.service.UserService;
 
 public class ConsoleApp {
 
-    private UserService userService = new UserService();
-    private Scanner scanner = new Scanner(System.in);
-    private User utilisateurConnecte = null;
-
+    private final UserService userService = new UserService();
     private final FileService fileService = new FileService();
+    private final Scanner scanner = new Scanner(System.in);
+    private User utilisateurConnecte = null;
+    private boolean running = true;
 
     public void demarrer() {
         System.out.println("=========================");
-        System.out.println("LinePerm - gestion de fichiers & droits");
+        System.out.println("LinPerm - gestion de fichiers & droits");
         System.out.println("=========================");
 
-        String commande;
-        while (true) {
+        while (running) {
             afficherPrompt();
-
             String ligne = scanner.nextLine().trim();
-            if (ligne.isEmpty())
-                continue;
+            traiter(ligne);
+        }
+        scanner.close();
+    }
 
-            String[] mots = ligne.split("\\s+");
-            commande = mots[0].toLowerCase();
 
-            // GARDE 1 : Commande qui nécessite connexion (ex: logout)
-            if (utilisateurConnecte == null
-                    && (commande.equals("logout") || commande.equals("ls") || commande.equals("touch"))) {
-                System.out.println("Vous devez être connecté pour cette commande.");
-                continue;
-            }
+    
+    // ============================================================
+    // TRAITEMENT D'UNE LIGNE
+    // ============================================================
 
-            // GARDE 2 : Déjà connecté, on refuse signup/login
-            if (utilisateurConnecte != null && (commande.equals("signup") || commande.equals("login"))) {
-                System.out.println("Vous êtes déjà connecté. Faites 'logout' d'abord.");
-                continue;
-            }
+    private void traiter(String ligne) {
+        if (ligne.isEmpty()) return;
 
-            switch (commande) {
-                case "signup":
-                    handleSignup();
-                    ;
-                    break;
-                case "login":
-                    handleLogin();
-                    break;
-                case "logout":
-                    handleLogout();
-                    break;
-                case "help":
-                    showHelp();
-                    break;
-                case "exit":
-                    System.out.println("Au revoir.");
-                    scanner.close();
-                    return;
-                case "touch":
-                    handleTouch(mots);
-                    break;
-                case "ls":
-                    handleLs();
-                    break;
-                
-                case "cat":     
-                    handleCat(mots);   
-                    break;
-                case "nano":     
-                    handleNano(mots);   
-                    break;
-                default:
-                    System.out.println("Commande inconnue. Tapez 'help'.");
-                    break;
-            }
+        String[] mots = ligne.split("\\s+");
+        String commande = mots[0].toLowerCase();
+
+        // GARDE 1 : commandes nécessitant une connexion
+        if (utilisateurConnecte == null
+                && (commande.equals("logout")
+                 || commande.equals("ls")
+                 || commande.equals("touch")
+                 || commande.equals("cat")
+                 || commande.equals("nano")
+                 || commande.equals("chmod"))) {
+            System.out.println("Vous devez être connecté pour cette commande.");
+            return;
+        }
+
+        // GARDE 2 : déjà connecté → refuser signup/login
+        if (utilisateurConnecte != null
+                && (commande.equals("signup") || commande.equals("login"))) {
+            System.out.println("Vous êtes déjà connecté. Faites 'logout' d'abord.");
+            return;
+        }
+
+        switch (commande) {
+            case "signup":  handleSignup();  break;
+            case "login":   handleLogin();   break;
+            case "logout":  handleLogout();  break;
+            case "help":    showHelp();      break;
+            case "ls":      handleLs();      break;
+            case "touch":   handleTouch(mots); break;
+            case "cat":     handleCat(mots);   break;
+            case "nano":    handleNano(mots);  break;
+            case "chmod":   handleChmod(mots); break;
+            case "exit":
+                System.out.println("Au revoir.");
+                running = false;
+                break;
+            default:
+                System.out.println("Commande inconnue. Tapez 'help'.");
+                break;
         }
     }
+
+
+
+
+
+
 
     // Help
     private void showHelp() {

@@ -39,8 +39,9 @@ public class Controlercces {
 
     }
 
+    // Method static  qui compare les logins.
     public static boolean estProprietaire(User user, FichierProtege fichier) {
         if (user == null || fichier == null) return false;
-        return user.getLogin().equals(fichier.getProprietaire());
+        return user.getLogin().equals(fichier.getProprietaire()); //Utilisée par chmod pour vérifier que seul le propriétaire peut modifier les droits.
     }
 }

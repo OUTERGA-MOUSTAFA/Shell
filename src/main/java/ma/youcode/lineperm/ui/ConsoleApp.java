@@ -73,6 +73,9 @@ public class ConsoleApp {
                 case "cat":     
                     handleCat(mots);   
                     break;
+                case "nano":     
+                    handleNano(mots);   
+                    break;
                 default:
                     System.out.println("Commande inconnue. Tapez 'help'.");
                     break;
@@ -200,4 +203,52 @@ public class ConsoleApp {
         }
     }
 
+
+    // Nano
+    private void handleNano(String[] mots) {
+        if (mots.length < 2) {
+            System.out.println("Usage : nano <nom>");
+            return;
+        }
+        String nom = mots[1];
+
+        if (!fileService.existe(nom)) {
+            System.out.println("Fichier introuvable. Utilisez 'touch' d'abord.");
+            return;
+        }
+        // Vérifie le droit w AVANT l'édition
+        if (!fileService.peutEcrire(nom, utilisateurConnecte)) {
+            System.out.println("Permission denied.");
+            return;
+        }
+
+        System.out.println("--- Mode édition : " + nom + " ---");
+
+        // Cas limite : w sans r → on masque le contenu actuel
+        if (!fileService.peutLire(nom, utilisateurConnecte)) {
+            System.out.println("(contenu masqué — vous n'avez pas le droit de lecture)");
+        } else {
+            String contenuActuel = fileService.cat(nom, utilisateurConnecte);
+            if (contenuActuel == null || contenuActuel.isEmpty()) {
+                System.out.println("(fichier vide)");
+            } else {
+                System.out.print(contenuActuel);
+                if (!contenuActuel.endsWith("\n")) System.out.println();
+            }
+        }
+
+        System.out.println("--- Saisis ton texte. Tape EOF seul sur une ligne pour enregistrer. ---");
+
+        StringBuilder sb = new StringBuilder();
+        int nbLignes = 0;
+        while (true) {
+            String l = scanner.nextLine();
+            if (l.equals("EOF")) break;
+            sb.append(l).append("\n");
+            nbLignes++;
+        }
+
+        fileService.nano(nom, sb.toString(), utilisateurConnecte);
+        System.out.println("Fichier '" + nom + "' enregistré (" + nbLignes + " ligne(s)).");
+    }
 }

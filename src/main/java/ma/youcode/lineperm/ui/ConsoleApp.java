@@ -16,9 +16,9 @@ public class ConsoleApp {
     private User utilisateurConnecte = null;
     private boolean running = true;
 
-    public void demarrer() {
+   public void demarrer() {
         System.out.println("=========================");
-        System.out.println("LinPerm - gestion de fichiers & droits");
+        System.out.println("LinePerm - gestion de fichiers & droits");
         System.out.println("=========================");
 
         while (running) {

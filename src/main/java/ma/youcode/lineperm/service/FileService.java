@@ -183,7 +183,7 @@ public class FileService {
         for (FichierProtege f : fichiers.values()) {
             // nom:proprietaire;rwd;r---
             String prop = (f.isrProp() ? "r" : "-") + (f.iswProp() ? "w" : "-") + (f.isdProp() ? "d" : "-");
-            String autre = (f.isrAutre() ? "r" : "-") + (f.iswAutre() ? "w" : "-") + (f.isdAutre() ? "d" : "-");
+            String autre = (f.isrAutre() ? "r" : "-") + (f.iswAutre() ? "rw" : "-") + (f.isdAutre() ? "d" : "-");
             sb.append(f.getNom()).append(":")
               .append(f.getProprietaire()).append(";")
               .append(prop).append(";")

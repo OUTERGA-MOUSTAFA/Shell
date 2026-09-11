@@ -3,6 +3,7 @@ package ma.youcode.lineperm.ui;
 import java.util.Scanner;
 
 import ma.youcode.lineperm.model.User;
+import ma.youcode.lineperm.service.FileService;
 import ma.youcode.lineperm.service.UserService;
 
 public class ConsoleApp {
@@ -10,6 +11,9 @@ public class ConsoleApp {
     private UserService userService = new UserService();
     private Scanner scanner = new Scanner(System.in);
     private User utilisateurConnecte = null;
+    
+    private final FileService fileService = new FileService();
+
 
     public void demarrer() {
         System.out.println("=========================");
@@ -58,6 +62,9 @@ public class ConsoleApp {
                     System.out.println("Au revoir.");
                     scanner.close();
                     return ;
+                case "touch":   
+                    handleTouch(mots); 
+                    break;
                 default:
                     System.out.println("Commande inconnue. Tapez 'help'.");
                     break;
@@ -66,6 +73,7 @@ public class ConsoleApp {
     }
 
 
+    // Help
      private void showHelp() {
         if (utilisateurConnecte == null) {
             System.out.println("Commandes : signup | login | help | exit");
@@ -74,6 +82,7 @@ public class ConsoleApp {
         }
     }
     
+    // Afficher Prompt
     private void afficherPrompt() {
         if (utilisateurConnecte != null) {
             System.out.print(utilisateurConnecte.getLogin() + "@linperm>wrd| ");
@@ -82,7 +91,7 @@ public class ConsoleApp {
         }
     }
 
-    // hundels exeptions
+    //  signUp
     private void handleSignup() {
         System.out.print("Login : ");
         String login = scanner.nextLine().trim();
@@ -111,6 +120,7 @@ public class ConsoleApp {
 
     }
 
+    // Login
     private void handleLogin() {
         System.out.print("Login : ");
         String login = scanner.nextLine().trim();
@@ -126,6 +136,7 @@ public class ConsoleApp {
         }
     }
 
+    // logout
     private void handleLogout() {
         if (utilisateurConnecte == null) {
             System.out.println("Vous n'êtes pas connecté.");
@@ -135,4 +146,19 @@ public class ConsoleApp {
         System.out.println("Déconnecté.");
     }
     
+
+    // touch
+    private void handleTouch(String[] mots) {
+        if (mots.length < 2) {
+            System.out.println("Usage : touch <nom>");
+            return;
+        }
+        String nom = mots[1];
+        if (fileService.touch(nom, utilisateurConnecte.getLogin())) {
+            System.out.println("Fichier '" + nom + "' créé.");
+        } else {
+            System.out.println("Permission denied.");
+        }
+    }
+
 }

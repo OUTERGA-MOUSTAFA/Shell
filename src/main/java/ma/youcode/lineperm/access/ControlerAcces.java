@@ -6,8 +6,9 @@ import ma.youcode.lineperm.model.User;
 /**
  * Controlercces
  */
-public class Controlercces {
+public class ControlerAcces {
 
+    private ControlerAcces() { }
     /**
      * Retourne true si l'utilisateur a le droit demandé sur le fichier.
      * @param droit 'r', 'w' ou 'd'

@@ -7,7 +7,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ma.youcode.lineperm.access.ControlerAcces;
 import ma.youcode.lineperm.model.FichierProtege;
+import ma.youcode.lineperm.model.User;
 
 /**
  * FileService
@@ -46,5 +48,12 @@ public class FileService {
         
         // return fichiers.values().stream().toList();
         return new ArrayList<>(fichiers.values());
+    }
+
+    /** Retourne true si l'utilisateur peut voir le contenu (droit r). */
+    public boolean peutLire(String nom, User user) {
+        FichierProtege f = fichiers.get(nom);
+        if (f == null) return false;
+        return ControlerAcces.estAutorise(user, f, 'r');
     }
 }

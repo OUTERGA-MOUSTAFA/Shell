@@ -148,4 +148,24 @@ public class FileService {
         if (f == null) return false;
         return ControlerAcces.estAutorise(user, f, 'r');
     }
+
+    
+    private void sauvegarder() {
+        StringBuilder sb = new StringBuilder();
+        for (FichierProtege f : fichiers.values()) {
+            // nom:proprietaire;rwd;r---
+            String prop = (f.isrProp() ? "r" : "-") + (f.iswProp() ? "w" : "-") + (f.isdProp() ? "d" : "-");
+            String autre = (f.isrAutre() ? "r" : "-") + (f.iswAutre() ? "w" : "-") + (f.isdAutre() ? "d" : "-");
+            sb.append(f.getNom()).append(":")
+              .append(f.getProprietaire()).append(";")
+              .append(prop).append(";")
+              .append(autre)
+              .append(System.lineSeparator());
+        }
+        try {
+            Files.writeString(storagePath, sb.toString());
+        } catch (IOException e) {
+            System.err.println("Erreur sauvegarde fichiers : " + e.getMessage());
+        }
+    }
 }

@@ -25,5 +25,17 @@ public class FileService {
     // private final Path storagePath = Paths.get("files.txt");
     // private final Path dataDir = Paths.get("data");
 
-    
+    /** Crée un fichier vide en rwd|---. */
+    public boolean touch(String nom, String proprietaire) {
+        // Refus si vide ou contient un chemin
+        if (nom == null || nom.trim().isEmpty()) return false;
+        if (nom.contains("/") || nom.contains("\\")) return false;
+        if (fichiers.containsKey(nom)) return false;
+
+        FichierProtege f = new FichierProtege(nom, proprietaire);
+        fichiers.put(nom, f);
+        ecrireContenuDisque(nom, "");
+        sauvegarder();
+        return true;
+    }
 }

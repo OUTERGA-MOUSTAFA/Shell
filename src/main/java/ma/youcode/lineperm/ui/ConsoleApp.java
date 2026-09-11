@@ -1,7 +1,9 @@
 package ma.youcode.lineperm.ui;
 
+import java.util.List;
 import java.util.Scanner;
 
+import ma.youcode.lineperm.model.FichierProtege;
 import ma.youcode.lineperm.model.User;
 import ma.youcode.lineperm.service.FileService;
 import ma.youcode.lineperm.service.UserService;
@@ -11,9 +13,8 @@ public class ConsoleApp {
     private UserService userService = new UserService();
     private Scanner scanner = new Scanner(System.in);
     private User utilisateurConnecte = null;
-    
-    private final FileService fileService = new FileService();
 
+    private final FileService fileService = new FileService();
 
     public void demarrer() {
         System.out.println("=========================");
@@ -61,9 +62,12 @@ public class ConsoleApp {
                 case "exit":
                     System.out.println("Au revoir.");
                     scanner.close();
-                    return ;
-                case "touch":   
-                    handleTouch(mots); 
+                    return;
+                case "touch":
+                    handleTouch(mots);
+                    break;
+                case "ls":
+                    handleLs();
                     break;
                 default:
                     System.out.println("Commande inconnue. Tapez 'help'.");
@@ -72,16 +76,15 @@ public class ConsoleApp {
         }
     }
 
-
     // Help
-     private void showHelp() {
+    private void showHelp() {
         if (utilisateurConnecte == null) {
             System.out.println("Commandes : signup | login | help | exit");
         } else {
             System.out.println("Commandes : logout | help | exit");
         }
     }
-    
+
     // Afficher Prompt
     private void afficherPrompt() {
         if (utilisateurConnecte != null) {
@@ -91,7 +94,7 @@ public class ConsoleApp {
         }
     }
 
-    //  signUp
+    // signUp
     private void handleSignup() {
         System.out.print("Login : ");
         String login = scanner.nextLine().trim();
@@ -145,7 +148,6 @@ public class ConsoleApp {
         utilisateurConnecte = null;
         System.out.println("Déconnecté.");
     }
-    
 
     // touch
     private void handleTouch(String[] mots) {
@@ -161,4 +163,15 @@ public class ConsoleApp {
         }
     }
 
+    // Ls
+    private void handleLs() {
+        List<FichierProtege> tous = fileService.lister();
+        if (tous.isEmpty()) {
+            System.out.println("(aucun fichier)");
+            return;
+        }
+        for (FichierProtege f : tous) {
+            System.out.println(f.toString());
+        }
+    }
 }

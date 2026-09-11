@@ -69,6 +69,10 @@ public class ConsoleApp {
                 case "ls":
                     handleLs();
                     break;
+                
+                case "cat":     
+                    handleCat(mots);   
+                    break;
                 default:
                     System.out.println("Commande inconnue. Tapez 'help'.");
                     break;
@@ -174,4 +178,26 @@ public class ConsoleApp {
             System.out.println(f.toString());
         }
     }
+
+
+    // Cat
+    private void handleCat(String[] mots) {
+        if (mots.length < 2) {
+            System.out.println("Usage : cat <nom>");
+            return;
+        }
+        String nom = mots[1];
+        String contenu = fileService.cat(nom, utilisateurConnecte);
+        if (contenu == null) {
+            System.out.println("Permission denied.");
+            return;
+        }
+        if (contenu.isEmpty()) {
+            System.out.println("(fichier vide)");
+        } else {
+            System.out.print(contenu);
+            if (!contenu.endsWith("\n")) System.out.println();
+        }
+    }
+
 }

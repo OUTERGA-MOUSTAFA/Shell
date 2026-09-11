@@ -254,4 +254,28 @@ public class ConsoleApp {
         fileService.nano(nom, sb.toString(), utilisateurConnecte);
         System.out.println("Fichier '" + nom + "' enregistré (" + nbLignes + " ligne(s)).");
     }
+
+
+    // Chmod
+    private void handleChmod(String[] mots) {
+        if (mots.length < 3) {
+            System.out.println("Usage : chmod <r|w|d| -r|-w|-d> <nom>");
+            return;
+        }
+        String arg = mots[1];
+        String nom = mots[2];
+
+        if (!fileService.existe(nom)) {
+            System.out.println("Fichier introuvable.");
+            return;
+        }
+
+        String resultat = fileService.chmod(nom, arg, utilisateurConnecte);
+        if (resultat == null) {
+            System.out.println("Permission denied.");
+        } else {
+            System.out.println(resultat);
+        }
+    }
+
 }

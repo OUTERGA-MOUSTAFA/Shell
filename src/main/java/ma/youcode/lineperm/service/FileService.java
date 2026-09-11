@@ -150,6 +150,34 @@ public class FileService {
     }
 
     
+    
+    /**
+     * chmod : 'r', 'w' ou 'd' pour donner ; "-r", "-w", "-d" pour retirer.
+     * Seul le propriétaire peut modifier.
+     * @return null si refusé, sinon un message de résultat.
+     */
+    public String chmod(String nom, String arg, User user) {
+        FichierProtege f = fichiers.get(nom);
+        if (f == null) return null;
+        if (!ControlerAcces.estProprietaire(user, f)) return null;
+
+        boolean retirer = arg.startsWith("-");
+        String c = retirer ? arg.substring(1) : arg;
+        if (c.length() != 1) return null;
+        char droit = c.charAt(0);
+        if (droit != 'r' && droit != 'w' && droit != 'd') return null;
+
+        String avant = f.droitsToString();
+
+        if (droit == 'r') f.setrAutre(!retirer);
+        if (droit == 'w') f.setwAutre(!retirer);
+        if (droit == 'd') f.setdAutre(!retirer);
+
+        sauvegarder();
+        String apres = f.droitsToString();
+        return nom + " : " + avant + " --> " + apres;
+    }
+
     private void sauvegarder() {
         StringBuilder sb = new StringBuilder();
         for (FichierProtege f : fichiers.values()) {
@@ -168,4 +196,5 @@ public class FileService {
             System.err.println("Erreur sauvegarde fichiers : " + e.getMessage());
         }
     }
+
 }

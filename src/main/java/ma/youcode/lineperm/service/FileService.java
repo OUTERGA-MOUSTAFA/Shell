@@ -2,7 +2,9 @@ package ma.youcode.lineperm.service;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import ma.youcode.lineperm.model.FichierProtege;
@@ -37,5 +39,12 @@ public class FileService {
         ecrireContenuDisque(nom, "");
         sauvegarder();
         return true;
+    }
+
+
+    public  List<FichierProtege> lister(){
+        
+        // return fichiers.values().stream().toList();
+        return new ArrayList<>(fichiers.values());
     }
 }

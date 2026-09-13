@@ -1,1 +1,1 @@
-moustafa.txt:Moustaf;rwd;---
+moustafa.txt:Moustaf;rwd;rrw-

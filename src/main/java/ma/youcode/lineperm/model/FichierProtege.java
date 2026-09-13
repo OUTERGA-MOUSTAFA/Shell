@@ -13,8 +13,7 @@ public class FichierProtege {
     }
 
     // 2. Constructeur long
-    public FichierProtege(String nom, String proprietaire, boolean rProp, boolean wProp, boolean dProp, boolean rAutre,
-            boolean wAutre, boolean dAutre) {
+    public FichierProtege(String nom, String proprietaire, boolean rProp, boolean wProp, boolean dProp, boolean rAutre, boolean wAutre, boolean dAutre) {
         this.nom = nom;
         this.Proprietaire = proprietaire;
         this.rProp = rProp;
@@ -49,9 +48,13 @@ public class FichierProtege {
         return wProp;
     }
 
-    public boolean isrdrop() {
+    public boolean isdProp() {
         return dProp;
     }
+
+     public boolean isrAutre() { return rAutre; }
+    public boolean iswAutre() { return wAutre; }
+    public boolean isdAutre() { return dAutre; }
 
     public boolean setrAutre(boolean v) {
         return this.rAutre = v;

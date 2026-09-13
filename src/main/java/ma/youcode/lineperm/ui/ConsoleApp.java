@@ -13,6 +13,7 @@ public class ConsoleApp {
     private final UserService userService = new UserService();
     private final FileService fileService = new FileService();
     private final Scanner scanner = new Scanner(System.in);
+    
     private User utilisateurConnecte = null;
     private boolean running = true;
 

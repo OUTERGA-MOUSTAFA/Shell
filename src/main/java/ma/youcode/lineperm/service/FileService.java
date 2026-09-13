@@ -21,12 +21,12 @@ public class FileService {
     public FileService(){
         charger();
     }    
-    Map<String, FichierProtege> fichiers = new HashMap();
+    private final Map<String, FichierProtege> fichiers = new HashMap <>();
 
     //Le dossier "data/" sera créé au premier besoin avec Files.createDirectories().
-    Path dataDir = Paths.get("data/");
+    private final Path dataDir = Paths.get("data");
 
-    Path storagePath = Paths.get("files.txt");
+    private final Path storagePath = Paths.get("files.txt");
 
 
     //  private final Map<String, FichierProtege> fichiers = new HashMap<>();
@@ -86,6 +86,22 @@ public class FileService {
         sauvegarder();
         return true;
     }
+
+
+     private Path cheminContenu(String nom) {
+        return dataDir.resolve(nom);
+    }
+
+    private String lireContenuDisque(String nom) {
+        try {
+            Path p = cheminContenu(nom);
+            if (!Files.exists(p)) return "";
+            return Files.readString(p);
+        } catch (IOException e) {
+            return "";
+        }
+    }
+
 
     /**
      * Lecture : retourne null si refusé ou inexistant.
@@ -149,34 +165,14 @@ public class FileService {
         return ControlerAcces.estAutorise(user, f, 'r');
     }
 
-    
-    
-    /**
-     * chmod : 'r', 'w' ou 'd' pour donner ; "-r", "-w", "-d" pour retirer.
-     * Seul le propriétaire peut modifier.
-     * @return null si refusé, sinon un message de résultat.
-     */
-    public String chmod(String nom, String arg, User user) {
+
+    /** Vérifie le droit w avant l'édition. */
+    public boolean peutEcrire(String nom, User user) {
         FichierProtege f = fichiers.get(nom);
-        if (f == null) return null;
-        if (!ControlerAcces.estProprietaire(user, f)) return null;
-
-        boolean retirer = arg.startsWith("-");
-        String c = retirer ? arg.substring(1) : arg;
-        if (c.length() != 1) return null;
-        char droit = c.charAt(0);
-        if (droit != 'r' && droit != 'w' && droit != 'd') return null;
-
-        String avant = f.droitsToString();
-
-        if (droit == 'r') f.setrAutre(!retirer);
-        if (droit == 'w') f.setwAutre(!retirer);
-        if (droit == 'd') f.setdAutre(!retirer);
-
-        sauvegarder();
-        String apres = f.droitsToString();
-        return nom + " : " + avant + " --> " + apres;
+        if (f == null) return false;
+        return ControlerAcces.estAutorise(user, f, 'w');
     }
+
 
     private void sauvegarder() {
         StringBuilder sb = new StringBuilder();
@@ -194,6 +190,15 @@ public class FileService {
             Files.writeString(storagePath, sb.toString());
         } catch (IOException e) {
             System.err.println("Erreur sauvegarde fichiers : " + e.getMessage());
+        }
+    }
+
+    private void ecrireContenuDisque(String nom, String contenu) {
+        try {
+            Files.createDirectories(dataDir);
+            Files.writeString(cheminContenu(nom), contenu);
+        } catch (IOException e) {
+            System.err.println("Erreur écriture disque : " + e.getMessage());
         }
     }
 

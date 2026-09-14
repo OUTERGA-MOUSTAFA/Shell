@@ -1,79 +1,102 @@
 package ma.youcode.lineperm.ui;
 
+import java.util.List;
 import java.util.Scanner;
 
+import ma.youcode.lineperm.model.FichierProtege;
 import ma.youcode.lineperm.model.User;
+import ma.youcode.lineperm.service.FileService;
 import ma.youcode.lineperm.service.UserService;
 
 public class ConsoleApp {
 
-    private UserService userService = new UserService();
-    private Scanner scanner = new Scanner(System.in);
+    private final UserService userService = new UserService();
+    private final FileService fileService = new FileService();
+    private final Scanner scanner = new Scanner(System.in);
+    
     private User utilisateurConnecte = null;
+    private boolean running = true;
 
-    public void demarrer() {
+   public void demarrer() {
         System.out.println("=========================");
-        System.out.println("LinPerm - gestion de fichiers & droits");
+        System.out.println("LinePerm - gestion de fichiers & droits");
         System.out.println("=========================");
 
-        String commande;
-        while (true) {
+        while (running) {
             afficherPrompt();
-
             String ligne = scanner.nextLine().trim();
-            if (ligne.isEmpty())
-                continue;
+            traiter(ligne);
+        }
+        scanner.close();
+    }
 
-            String[] mots = ligne.split("\\s+");
-            commande = mots[0].toLowerCase();
 
-            // GARDE 1 : Commande qui nécessite connexion (ex: logout)
-            if (utilisateurConnecte == null
-                    && (commande.equals("logout") || commande.equals("ls") || commande.equals("touch"))) {
-                System.out.println("Vous devez être connecté pour cette commande.");
-                continue;
-            }
+    
+    // ============================================================
+    // TRAITEMENT D'UNE LIGNE
+    // ============================================================
 
-            // GARDE 2 : Déjà connecté, on refuse signup/login
-            if (utilisateurConnecte != null && (commande.equals("signup") || commande.equals("login"))) {
-                System.out.println("Vous êtes déjà connecté. Faites 'logout' d'abord.");
-                continue;
-            }
+    private void traiter(String ligne) {
+        if (ligne.isEmpty()) return;
 
-            switch (commande) {
-                case "signup":
-                    handleSignup();
-                    ;
-                    break;
-                case "login":
-                    handleLogin();
-                    break;
-                case "logout":
-                    handleLogout();
-                    break;
-                case "help":
-                    showHelp();
-                    break;
-                case "exit":
-                    System.out.println("Au revoir.");
-                    scanner.close();
-                    return ;
-                default:
-                    System.out.println("Commande inconnue. Tapez 'help'.");
-                    break;
-            }
+        String[] mots = ligne.split("\\s+");
+        String commande = mots[0].toLowerCase();
+
+        // GARDE 1 : commandes nécessitant une connexion
+        if (utilisateurConnecte == null
+                && (commande.equals("logout")
+                 || commande.equals("ls")
+                 || commande.equals("touch")
+                 || commande.equals("cat")
+                 || commande.equals("nano")
+                 || commande.equals("chmod"))) {
+            System.out.println("Vous devez être connecté pour cette commande.");
+            return;
+        }
+
+        // GARDE 2 : déjà connecté → refuser signup/login
+        if (utilisateurConnecte != null
+                && (commande.equals("signup") || commande.equals("login"))) {
+            System.out.println("Vous êtes déjà connecté. Faites 'logout' d'abord.");
+            return;
+        }
+
+        switch (commande) {
+            case "signup":  handleSignup();  break;
+            case "login":   handleLogin();   break;
+            case "logout":  handleLogout();  break;
+            case "help":    showHelp();      break;
+            case "ls":      handleLs();      break;
+            case "touch":   handleTouch(mots); break;
+            case "cat":     handleCat(mots);   break;
+            case "nano":    handleNano(mots);  break;
+            case "chmod":   handleChmod(mots); break;
+            case "exit":
+                System.out.println("Au revoir.");
+                running = false;
+                break;
+            default:
+                System.out.println("Commande inconnue. Tapez 'help'.");
+                break;
         }
     }
 
 
-     private void showHelp() {
+
+
+
+
+
+    // Help
+    private void showHelp() {
         if (utilisateurConnecte == null) {
             System.out.println("Commandes : signup | login | help | exit");
         } else {
             System.out.println("Commandes : logout | help | exit");
         }
     }
-    
+
+    // Afficher Prompt
     private void afficherPrompt() {
         if (utilisateurConnecte != null) {
             System.out.print(utilisateurConnecte.getLogin() + "@linperm>wrd| ");
@@ -82,7 +105,7 @@ public class ConsoleApp {
         }
     }
 
-    // hundels exeptions
+    // signUp
     private void handleSignup() {
         System.out.print("Login : ");
         String login = scanner.nextLine().trim();
@@ -111,6 +134,7 @@ public class ConsoleApp {
 
     }
 
+    // Login
     private void handleLogin() {
         System.out.print("Login : ");
         String login = scanner.nextLine().trim();
@@ -126,6 +150,7 @@ public class ConsoleApp {
         }
     }
 
+    // logout
     private void handleLogout() {
         if (utilisateurConnecte == null) {
             System.out.println("Vous n'êtes pas connecté.");
@@ -134,5 +159,124 @@ public class ConsoleApp {
         utilisateurConnecte = null;
         System.out.println("Déconnecté.");
     }
-    
+
+    // touch
+    private void handleTouch(String[] mots) {
+        if (mots.length < 2) {
+            System.out.println("Usage : touch <nom>");
+            return;
+        }
+        String nom = mots[1];
+        if (fileService.touch(nom, utilisateurConnecte.getLogin())) {
+            System.out.println("Fichier '" + nom + "' créé.");
+        } else {
+            System.out.println("Permission denied.");
+        }
+    }
+
+    // Ls
+    private void handleLs() {
+        List<FichierProtege> tous = fileService.lister();
+        if (tous.isEmpty()) {
+            System.out.println("(aucun fichier)");
+            return;
+        }
+        for (FichierProtege f : tous) {
+            System.out.println(f.toString());
+        }
+    }
+
+
+    // Cat
+    private void handleCat(String[] mots) {
+        if (mots.length < 2) {
+            System.out.println("Usage : cat <nom>");
+            return;
+        }
+        String nom = mots[1];
+        String contenu = fileService.cat(nom, utilisateurConnecte);
+        if (contenu == null) {
+            System.out.println("Permission denied.");
+            return;
+        }
+        if (contenu.isEmpty()) {
+            System.out.println("(fichier vide)");
+        } else {
+            System.out.print(contenu);
+            if (!contenu.endsWith("\n")) System.out.println();
+        }
+    }
+
+
+    // Nano
+    private void handleNano(String[] mots) {
+        if (mots.length < 2) {
+            System.out.println("Usage : nano <nom>");
+            return;
+        }
+        String nom = mots[1];
+
+        if (!fileService.existe(nom)) {
+            System.out.println("Fichier introuvable. Utilisez 'touch' d'abord.");
+            return;
+        }
+        // Vérifie le droit w AVANT l'édition
+        if (!fileService.peutEcrire(nom, utilisateurConnecte)) {
+            System.out.println("Permission denied.");
+            return;
+        }
+
+        System.out.println("--- Mode édition : " + nom + " ---");
+
+        // Cas limite : w sans r → on masque le contenu actuel
+        if (!fileService.peutLire(nom, utilisateurConnecte)) {
+            System.out.println("(contenu masqué — vous n'avez pas le droit de lecture)");
+        } else {
+            String contenuActuel = fileService.cat(nom, utilisateurConnecte);
+            if (contenuActuel == null || contenuActuel.isEmpty()) {
+                System.out.println("(fichier vide)");
+            } else {
+                System.out.print(contenuActuel);
+                if (!contenuActuel.endsWith("\n")) System.out.println();
+            }
+        }
+
+        System.out.println("--- Saisis ton texte. Tape EOF seul sur une ligne pour enregistrer. ---");
+
+        StringBuilder sb = new StringBuilder();
+        int nbLignes = 0;
+        while (true) {
+            String l = scanner.nextLine();
+            if (l.equals("EOF")) break;
+            sb.append(l).append("\n");
+            nbLignes++;
+        }
+
+        fileService.nano(nom, sb.toString(), utilisateurConnecte);
+        System.out.println("Fichier '" + nom + "' enregistré (" + nbLignes + " ligne(s)).");
+    }
+
+
+    // Chmod
+    private void handleChmod(String[] mots) {
+        if (mots.length < 3) {
+            System.out.println("Usage : chmod <r|w|d| -r|-w|-d> <nom>");
+            return;
+        }
+        String arg = mots[1];
+        String nom = mots[2];
+
+        if (!fileService.existe(nom)) {
+            System.out.println("Fichier introuvable.");
+            return;
+        }
+
+        String resultat = fileService.chmod(nom, arg, utilisateurConnecte);
+        if (resultat == null) {
+            System.out.println("Permission denied.");
+        } else {
+            System.out.println(resultat);
+        }
+    }
+
 }

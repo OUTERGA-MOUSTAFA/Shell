@@ -1,4 +1,2 @@
-hello Moustafa your file now is not empty, 
-and have many lignes
-also if you want to get out you should type  EOF
-so 
+hello moustafa test stats only this time
+ok

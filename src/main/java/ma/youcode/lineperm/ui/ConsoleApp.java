@@ -1,6 +1,8 @@
 package ma.youcode.lineperm.ui;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Scanner;
 
 import ma.youcode.lineperm.model.FichierProtege;
@@ -320,18 +322,18 @@ public class ConsoleApp {
                 case "4":
                     actionsParUser();
                     break;
-                // case "5":
-                //     top3();
-                //     break;
-                // case "6":
-                //     refusesUser();
-                //     break;
-                // case "7":
-                //     plusActif();
-                //     break;
-                // case "8":
-                //     repartition();
-                //     break;
+                case "5":
+                    top3();
+                    break;
+                case "6":
+                    refusesUser();
+                    break;
+                case "7":
+                    plusActif();
+                    break;
+                case "8":
+                    repartition();
+                    break;
 
                 default:
                     System.out.println("Choix invalide!");
@@ -369,8 +371,43 @@ public class ConsoleApp {
     private void utilisateurs() {
         System.out.println("Accès refusés : " + logService.Utilisateurs());
     }
+
     private void actionsParUser() {
         System.out.println("Actions par utilisateur : " + logService.ActionsParUser());
     }
 
+    private void top3() {
+        List<Map.Entry<String, Long>> top3 = logService.Top3Fichiers();
+        if (top3.isEmpty()) {
+            System.out.println("(aucune lecture enregistrée)");
+            return;
+        }
+        System.out.println("Top 3 des fichiers consultés :");
+        int rang = 1;
+        for (Map.Entry<String, Long> e : top3) {
+            System.out.println("  " + rang + ". " + e.getKey() + " (" + e.getValue() + " lectures)");
+            rang++;
+        }
+    }
+
+    private void refusesUser() {
+        System.out.print("Nom de l'utilisateur : ");
+        String u = scanner.nextLine().trim();
+        long n = logService.RefusesParUtilisateur(u);
+        System.out.println("Accès refusés pour " + u + " : " + n);
+    }
+
+    private void plusActif() {
+        Optional<Map.Entry<String, Long>> opt = logService.UtilisateurPlusActif();
+        if (opt.isPresent()) {
+            Map.Entry<String, Long> e = opt.get();
+            System.out.println("Utilisateur le plus actif : " + e.getKey() + " (" + e.getValue() + " actions)");
+        } else {
+            System.out.println("(aucun log)");
+        }
+    }
+
+    private void repartition() {
+        System.out.println("Répartition des actions par type : " + logService.RepartitionParAction());
+    }
 }

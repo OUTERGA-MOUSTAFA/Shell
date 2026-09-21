@@ -1,55 +1,58 @@
 package ma.youcode.lineperm.ui;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Scanner;
 
 import ma.youcode.lineperm.model.FichierProtege;
 import ma.youcode.lineperm.model.User;
 import ma.youcode.lineperm.service.FileService;
+import ma.youcode.lineperm.service.LogService;
 import ma.youcode.lineperm.service.UserService;
 
 public class ConsoleApp {
 
-    private final UserService userService = new UserService();
-    private final FileService fileService = new FileService();
+    private final UserService userService = new UserService();// charger() -> lit users.txt
+    private final FileService fileService = new FileService();// charger() -> lit files.txt
     private final Scanner scanner = new Scanner(System.in);
-    
-    private User utilisateurConnecte = null;
+
+    private User utilisateurConnecte = null; // non connecté au debut
     private boolean running = true;
 
-   public void demarrer() {
+    public void demarrer() {
         System.out.println("=========================");
         System.out.println("LinePerm - gestion de fichiers & droits");
         System.out.println("=========================");
 
-        while (running) {
-            afficherPrompt();
+        while (running) {// afficherPrompt()=> linperm> username@wrd|
+            afficherPrompt();// prompt devient "username@linperm>wrd"
             String ligne = scanner.nextLine().trim();
-            traiter(ligne);
+            traiter(ligne);// traiter(ligne)
         }
         scanner.close();
     }
 
-
-    
     // ============================================================
     // TRAITEMENT D'UNE LIGNE
     // ============================================================
 
     private void traiter(String ligne) {
-        if (ligne.isEmpty()) return;
+        if (ligne.isEmpty())
+            return;
 
         String[] mots = ligne.split("\\s+");
         String commande = mots[0].toLowerCase();
 
         // GARDE 1 : commandes nécessitant une connexion
-        if (utilisateurConnecte == null
+        if (utilisateurConnecte == null // pas connecté
                 && (commande.equals("logout")
-                 || commande.equals("ls")
-                 || commande.equals("touch")
-                 || commande.equals("cat")
-                 || commande.equals("nano")
-                 || commande.equals("chmod"))) {
+                        || commande.equals("ls")
+                        || commande.equals("touch")
+                        || commande.equals("cat")
+                        || commande.equals("nano")
+                        || commande.equals("chmod")
+                        || commande.equals("stats"))) {
             System.out.println("Vous devez être connecté pour cette commande.");
             return;
         }
@@ -62,15 +65,36 @@ public class ConsoleApp {
         }
 
         switch (commande) {
-            case "signup":  handleSignup();  break;
-            case "login":   handleLogin();   break;
-            case "logout":  handleLogout();  break;
-            case "help":    showHelp();      break;
-            case "ls":      handleLs();      break;
-            case "touch":   handleTouch(mots); break;
-            case "cat":     handleCat(mots);   break;
-            case "nano":    handleNano(mots);  break;
-            case "chmod":   handleChmod(mots); break;
+            case "signup":
+                handleSignup();
+                break;
+            case "login":
+                handleLogin();
+                break;
+            case "logout":
+                handleLogout();
+                break;
+            case "help":
+                showHelp();
+                break;
+            case "ls":
+                handleLs();
+                break;
+            case "touch":
+                handleTouch(mots);
+                break;
+            case "cat":
+                handleCat(mots);
+                break;
+            case "nano":
+                handleNano(mots);
+                break;
+            case "chmod":
+                handleChmod(mots);
+                break;
+            case "stats":
+                handleStats();
+                break;
             case "exit":
                 System.out.println("Au revoir.");
                 running = false;
@@ -81,18 +105,12 @@ public class ConsoleApp {
         }
     }
 
-
-
-
-
-
-
     // Help
     private void showHelp() {
         if (utilisateurConnecte == null) {
             System.out.println("Commandes : signup | login | help | exit");
         } else {
-            System.out.println("Commandes : logout | help | exit");
+            System.out.println("Commandes : logout | help | exit | cat | nano | chmod | touch | stats");
         }
     }
 
@@ -157,7 +175,7 @@ public class ConsoleApp {
             return;
         }
         utilisateurConnecte = null;
-        System.out.println("Déconnecté.");
+        System.out.println("Déconnecté.");// prompt redevient "linperm>"
     }
 
     // touch
@@ -186,7 +204,6 @@ public class ConsoleApp {
         }
     }
 
-
     // Cat
     private void handleCat(String[] mots) {
         if (mots.length < 2) {
@@ -203,10 +220,10 @@ public class ConsoleApp {
             System.out.println("(fichier vide)");
         } else {
             System.out.print(contenu);
-            if (!contenu.endsWith("\n")) System.out.println();
+            if (!contenu.endsWith("\n"))
+                System.out.println();
         }
     }
-
 
     // Nano
     private void handleNano(String[] mots) {
@@ -237,7 +254,8 @@ public class ConsoleApp {
                 System.out.println("(fichier vide)");
             } else {
                 System.out.print(contenuActuel);
-                if (!contenuActuel.endsWith("\n")) System.out.println();
+                if (!contenuActuel.endsWith("\n"))
+                    System.out.println();
             }
         }
 
@@ -247,7 +265,8 @@ public class ConsoleApp {
         int nbLignes = 0;
         while (true) {
             String l = scanner.nextLine();
-            if (l.equals("EOF")) break;
+            if (l.equals("EOF"))
+                break;
             sb.append(l).append("\n");
             nbLignes++;
         }
@@ -255,7 +274,6 @@ public class ConsoleApp {
         fileService.nano(nom, sb.toString(), utilisateurConnecte);
         System.out.println("Fichier '" + nom + "' enregistré (" + nbLignes + " ligne(s)).");
     }
-
 
     // Chmod
     private void handleChmod(String[] mots) {
@@ -279,4 +297,117 @@ public class ConsoleApp {
         }
     }
 
+    // Stats
+    public void handleStats() {
+
+        boolean inStats = true;
+        while (inStats) {
+            afficherMenu();
+            String choice = scanner.nextLine().trim();
+
+            switch (choice) {
+                case "0":
+                    inStats = false;
+                    System.out.println("Retour au menu principal...");
+                    break;
+                case "1":
+                    totalActions();
+                    break;
+                case "2":
+                    totalRefuses();
+                    break;
+                case "3":
+                    utilisateurs();
+                    break;
+                case "4":
+                    actionsParUser();
+                    break;
+                case "5":
+                    top3();
+                    break;
+                case "6":
+                    refusesUser();
+                    break;
+                case "7":
+                    plusActif();
+                    break;
+                case "8":
+                    repartition();
+                    break;
+
+                default:
+                    System.out.println("Choix invalide!");
+                    break;
+            }
+        }
+    }
+
+    // Menu
+    public static void afficherMenu() {
+        System.out.println("\nBienvenue dans LogAnalyzer. Choisissez une statistique par son numéro.");
+        System.out.println("======   | LogAnalyzer |   ======");
+        System.out.println("1) Nombre total d'actions");
+        System.out.println("2) Nombre d'accès refusés");
+        System.out.println("3) Utilisateurs distincts");
+        System.out.println("4) Actions par utilisateur");
+        System.out.println("5) Top 3 des fichiers consultés");
+        System.out.println("6) Accès refusés d'un utilisateur");
+        System.out.println("7) Utilisateur le plus actif");
+        System.out.println("8) Répartition des actions par type");
+        System.out.println("0) Quitter");
+        System.out.print("Choix : ");
+    }
+
+    private final LogService logService = new LogService();
+
+    public void totalActions() {
+        System.out.println("Nombre total d'actions : " + logService.TotalActions());
+    }
+
+    private void totalRefuses() {
+        System.out.println("Accès refusés : " + logService.TotalRefuses());
+    }
+
+    private void utilisateurs() {
+        System.out.println("Accès refusés : " + logService.Utilisateurs());
+    }
+
+    private void actionsParUser() {
+        System.out.println("Actions par utilisateur : " + logService.ActionsParUser());
+    }
+
+    private void top3() {
+        List<Map.Entry<String, Long>> top3 = logService.Top3Fichiers();
+        if (top3.isEmpty()) {
+            System.out.println("(aucune lecture enregistrée)");
+            return;
+        }
+        System.out.println("Top 3 des fichiers consultés :");
+        int rang = 1;
+        for (Map.Entry<String, Long> e : top3) {
+            System.out.println("  " + rang + ". " + e.getKey() + " (" + e.getValue() + " lectures)");
+            rang++;
+        }
+    }
+
+    private void refusesUser() {
+        System.out.print("Nom de l'utilisateur : ");
+        String u = scanner.nextLine().trim();
+        long n = logService.RefusesParUtilisateur(u);
+        System.out.println("Accès refusés pour " + u + " : " + n);
+    }
+
+    private void plusActif() {
+        Optional<Map.Entry<String, Long>> opt = logService.UtilisateurPlusActif();
+        if (opt.isPresent()) {
+            Map.Entry<String, Long> e = opt.get();
+            System.out.println("Utilisateur le plus actif : " + e.getKey() + " (" + e.getValue() + " actions)");
+        } else {
+            System.out.println("(aucun log)");
+        }
+    }
+
+    private void repartition() {
+        System.out.println("Répartition des actions par type : " + logService.RepartitionParAction());
+    }
 }

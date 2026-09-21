@@ -1,8 +1,6 @@
 package ma.youcode.lineperm.dao;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -65,5 +63,25 @@ public class UserDao extends AbstractDao<User> {
             System.err.println("UserDao.delete : " + e.getMessage());
             return false;
         }
+    }
+
+     public Optional<User> findByLogin(String login) {
+        String sql = "SELECT * FROM users WHERE login = ?";
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setString(1, login);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return Optional.of(mapRow(rs));
+            }
+        } catch (SQLException e) {
+            System.err.println("UserDao.findByLogin : " + e.getMessage());
+        }
+        return Optional.empty();
+    }
+
+    private User mapRow(ResultSet rs) throws SQLException {
+        return new User(
+                rs.getInt("id"),
+                rs.getString("login"),
+                rs.getString("password_hash"));
     }
 }

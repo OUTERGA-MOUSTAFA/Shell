@@ -21,14 +21,6 @@ private int id;
     public String getLogin(){return login;}
     public String getPasswordHash(){return passwordHash;}
 
-//setters
-    public void setLogin(String login){
-        this.login = login;
-    }
-    public void setPasswordHash(String passwordHash){
-        this.passwordHash = passwordHash;
-    }
-
 // override 
     public String toString(){
         return this.login + ":" + this.passwordHash;

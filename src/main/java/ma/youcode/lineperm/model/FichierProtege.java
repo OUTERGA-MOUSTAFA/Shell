@@ -2,80 +2,43 @@ package ma.youcode.lineperm.model;
 
 public class FichierProtege {
 
-    private String nom;
-    private String Proprietaire;
-    private boolean rProp, wProp, dProp;
-    private boolean rAutre, wAutre, dAutre;
+    private int id;
+    private final String nom;
+    private final int proprietaireId;
+    private String droitsProprio;
+    private String droitsAutres;
 
     // 1. Constructeur court
-    public FichierProtege(String nom, String proprietaire) {
-        this(nom, proprietaire, true, true, true, false, false, false);
+    public FichierProtege(String nom, int proprietaireId) {
+        this(0, nom, proprietaireId, "rwd", "---");
     }
 
     // 2. Constructeur long
-    public FichierProtege(String nom, String proprietaire, boolean rProp, boolean wProp, boolean dProp, boolean rAutre, boolean wAutre, boolean dAutre) {
+    public FichierProtege(int id, String nom, int proprietaireId,
+                          String droitsProprio, String droitsAutres) {
+        this.id = id;
         this.nom = nom;
-        this.Proprietaire = proprietaire;
-        this.rProp = rProp;
-        this.wProp = wProp;
-        this.dProp = dProp;
-        this.rAutre = rAutre;
-        this.wAutre = wAutre;
-        this.dAutre = dAutre;
+        this.proprietaireId = proprietaireId;
+        this.droitsProprio = droitsProprio;
+        this.droitsAutres = droitsAutres;
     }
 
-    public String getNom() {
-        return nom;
-    }
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+    public String getNom() { return nom; }
+    public int getProprietaireId() { return proprietaireId; }
+    public String getDroitsProprio() { return droitsProprio; }
+    public String getDroitsAutres() { return droitsAutres; }
 
-    public void setNom(String nom) {
-        this.nom = nom;
-    }
+    public void setDroitsProprio(String d) { this.droitsProprio = d; }
+    public void setDroitsAutres(String d) { this.droitsAutres = d; }
 
-    public String getProprietaire() {
-        return Proprietaire;
-    }
-
-    public void setProprietaire(String Proprietaire) {
-        this.Proprietaire = Proprietaire;
-    }
-
-    public boolean isrProp() {
-        return rProp;
-    }
-
-    public boolean iswProp() {
-        return wProp;
-    }
-
-    public boolean isdProp() {
-        return dProp;
-    }
-
-     public boolean isrAutre() { return rAutre; }
-    public boolean iswAutre() { return wAutre; }
-    public boolean isdAutre() { return dAutre; }
-
-    public boolean setrAutre(boolean v) {
-        return this.rAutre = v;
-    }
-
-    public boolean setwAutre(boolean v) {
-        return this.wAutre = v;
-    }
-
-    public boolean setdAutre(boolean v) {
-        return this.dAutre = v;
-    }
-
-    //Format exact XXX|XXX, 3 positions par bloc: rwd|r-- ---
     public String droitsToString() {
-        return (rProp ? "r" : "-") + (wProp ? "w" : "-") + (dProp ? "d" : "-") + "|" + (rAutre ? "r" : "-") + (wAutre ? "w" : "-") + (dAutre ? "d" : "-");
+        return droitsProprio + "|" + droitsAutres;
     }
 
     @Override
     public String toString() {
-        return droitsToString()/*=> rwd|r-- */ + " " + this.Proprietaire + " " + this.nom;
+        return droitsToString() + " user#" + proprietaireId + " " + nom;
     }
-
 }

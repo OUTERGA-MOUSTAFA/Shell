@@ -24,4 +24,12 @@ public class DBConnection {
         }
 
     }
+
+
+    public static synchronized DBConnection getInstance() {
+        if (instance == null) {
+            instance = new DBConnection();
+        }
+        return instance;
+    }
 }

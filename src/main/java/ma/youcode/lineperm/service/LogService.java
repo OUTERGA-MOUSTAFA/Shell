@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import ma.youcode.lineperm.model.AccessLog;
@@ -45,7 +46,6 @@ public class LogService {
         }
     }
 
-
     // les fonctions de Menu
 
     // function 1
@@ -54,22 +54,22 @@ public class LogService {
     }
 
     // function 2
-    public long TotalRefuses(){
-        
+    public long TotalRefuses() {
+
         return logs.stream().filter(log -> log.getResultat().equals("refuse")).count();
     }
 
-    //function 3
-    public List<String> Utilisateurs(){
+    // function 3
+    public List<String> Utilisateurs() {
         return logs.stream().map(log -> log.getUtilisateur()).distinct().toList();
     }
 
     // function 4
-    public Map<String,Long> ActionsParUser(){
+    public Map<String, Long> ActionsParUser() {
 
-        // return  logs.stream().forEach( item ->{
-        //     item.getUtilisateur();  
-        //     item.getAction();
+        // return logs.stream().forEach( item ->{
+        // item.getUtilisateur();
+        // item.getAction();
         // } ).toList();
 
         return logs.stream()
@@ -79,4 +79,41 @@ public class LogService {
     }
 
     // function 5
+    public List<Map.Entry<String, Long>> Top3Fichiers() {
+        return logs.stream()
+                .filter(l -> l.getAction().equalsIgnoreCase("LECTURE"))
+                .collect(Collectors.groupingBy(
+                        AccessLog::getFichier,
+                        Collectors.counting()))
+                .entrySet().stream()
+                .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+                .limit(3)
+                .collect(Collectors.toList());
+    }
+
+    // function 6
+    public long RefusesParUtilisateur(String utilisateur) {
+        return logs.stream()
+                .filter(l -> l.getUtilisateur().equalsIgnoreCase(utilisateur))
+                .filter(l -> l.getResultat().equalsIgnoreCase("REFUSE"))
+                .count();
+    }
+
+    // function 7
+    public Optional<Map.Entry<String, Long>> UtilisateurPlusActif() {
+        return logs.stream()
+                .collect(Collectors.groupingBy(
+                        AccessLog::getUtilisateur,
+                        Collectors.counting()))
+                .entrySet().stream()
+                .max(Map.Entry.comparingByValue());
+    }
+
+    // function 8
+    public Map<String, Long> RepartitionParAction() {
+        return logs.stream()
+                .collect(Collectors.groupingBy(
+                        AccessLog::getAction,
+                        Collectors.counting()));
+    }
 }

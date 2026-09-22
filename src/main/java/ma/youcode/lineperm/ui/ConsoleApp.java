@@ -21,9 +21,9 @@ public class ConsoleApp {
     private boolean running = true;
 
     public void demarrer() {
-        System.out.println("=========================");
+        System.out.println("=======================================");
         System.out.println("LinePerm - gestion de fichiers & droits");
-        System.out.println("=========================");
+        System.out.println("=======================================");
 
         while (running) {// afficherPrompt()=> linperm> username@wrd|
             afficherPrompt();// prompt devient "username@linperm>wrd"
@@ -46,12 +46,8 @@ public class ConsoleApp {
 
         // GARDE 1 : commandes nécessitant une connexion
         if (utilisateurConnecte == null // pas connecté
-                && (commande.equals("logout")
-                        || commande.equals("ls")
-                        || commande.equals("touch")
-                        || commande.equals("cat")
-                        || commande.equals("nano")
-                        || commande.equals("chmod")
+                && (commande.equals("logout") || commande.equals("ls") || commande.equals("touch")
+                        || commande.equals("cat") || commande.equals("nano") || commande.equals("chmod")
                         || commande.equals("stats"))) {
             System.out.println("Vous devez être connecté pour cette commande.");
             return;
@@ -185,7 +181,7 @@ public class ConsoleApp {
             return;
         }
         String nom = mots[1];
-        if (fileService.touch(nom, utilisateurConnecte.getLogin())) {
+        if (fileService.touch(nom, utilisateurConnecte)) {
             System.out.println("Fichier '" + nom + "' créé.");
         } else {
             System.out.println("Permission denied.");
@@ -194,14 +190,13 @@ public class ConsoleApp {
 
     // Ls
     private void handleLs() {
-        List<FichierProtege> tous = fileService.lister();
-        if (tous.isEmpty()) {
+        var liste = fileService.lister();
+        if (liste.isEmpty()) {
             System.out.println("(aucun fichier)");
             return;
         }
-        for (FichierProtege f : tous) {
+        for (var f : liste)
             System.out.println(f.toString());
-        }
     }
 
     // Cat
@@ -211,18 +206,19 @@ public class ConsoleApp {
             return;
         }
         String nom = mots[1];
-        String contenu = fileService.cat(nom, utilisateurConnecte);
-        if (contenu == null) {
+        var opt = fileService.find(nom);
+        if (opt.isEmpty()) {
+            System.out.println("Fichier introuvable.");
+            return;
+        }
+        var f = opt.get();
+        if (!fileService.peutLire(utilisateurConnecte, f)) {
+            logService.enregistrer(utilisateurConnecte.getId(), f.getId(), "LECTURE", "REFUSE");
             System.out.println("Permission denied.");
             return;
         }
-        if (contenu.isEmpty()) {
-            System.out.println("(fichier vide)");
-        } else {
-            System.out.print(contenu);
-            if (!contenu.endsWith("\n"))
-                System.out.println();
-        }
+        logService.enregistrer(utilisateurConnecte.getId(), f.getId(), "LECTURE", "OK");
+        System.out.println("(contenu du fichier — non stocké en BDD dans cette version)");
     }
 
     // Nano
@@ -278,66 +274,87 @@ public class ConsoleApp {
     // Chmod
     private void handleChmod(String[] mots) {
         if (mots.length < 3) {
-            System.out.println("Usage : chmod <r|w|d| -r|-w|-d> <nom>");
+            System.out.println("Usage : chmod <r|w|d|-r|-w|-d> <nom>");
             return;
         }
         String arg = mots[1];
         String nom = mots[2];
 
-        if (!fileService.existe(nom)) {
+        var opt = fileService.find(nom);
+        if (opt.isEmpty()) {
             System.out.println("Fichier introuvable.");
             return;
         }
+        var f = opt.get();
 
-        String resultat = fileService.chmod(nom, arg, utilisateurConnecte);
-        if (resultat == null) {
+        if (!fileService.estProprietaire(utilisateurConnecte, f)) {
             System.out.println("Permission denied.");
-        } else {
-            System.out.println(resultat);
+            return;
         }
+        boolean retirer = arg.startsWith("-");
+        String c = retirer ? arg.substring(1) : arg;
+        if (c.length() != 1) {
+            System.out.println("Argument invalide.");
+            return;
+        }
+        char droit = c.charAt(0);
+        if (droit != 'r' && droit != 'w' && droit != 'd') {
+            System.out.println("Droit invalide (r, w ou d).");
+            return;
+        }
+        String avant = f.droitsToString();
+        fileService.chmod(f, droit, retirer);
+        System.out.println(nom + " : " + avant + " --> " + f.droitsToString());
     }
 
     // Stats
     public void handleStats() {
 
-        boolean inStats = true;
-        while (inStats) {
+        System.out.println("Bienvenue dans LogAnalyzer. Choisissez une statistique par son numéro.");
+        boolean dansMenu = true;
+        while (dansMenu) {
             afficherMenu();
-            String choice = scanner.nextLine().trim();
-
-            switch (choice) {
-                case "0":
-                    inStats = false;
-                    System.out.println("Retour au menu principal...");
-                    break;
+            System.out.print("Choix : ");
+            String choix = scanner.nextLine().trim();
+            switch (choix) {
                 case "1":
-                    totalActions();
+                    System.out.println("Nombre total d'actions : " + logService.totalActions());
                     break;
                 case "2":
-                    totalRefuses();
+                    System.out.println("Accès refusés : " + logService.totalRefuses());
                     break;
                 case "3":
-                    utilisateurs();
+                    System.out.println("Utilisateurs distincts : " + logService.utilisateursDistincts());
                     break;
                 case "4":
-                    actionsParUser();
+                    System.out.println("Actions par utilisateur : " + logService.actionsParUtilisateur());
                     break;
                 case "5":
-                    top3();
+                    System.out.println("Top 3 des fichiers consultés :");
+                    logService.top3Fichiers()
+                            .forEach(e -> System.out.println("  " + e.getKey() + " (" + e.getValue() + " lectures)"));
                     break;
                 case "6":
-                    refusesUser();
+                    System.out.print("Nom de l'utilisateur : ");
+                    String u = scanner.nextLine().trim();
+                    System.out.println("Accès refusés pour " + u + " : " + logService.refusesParUtilisateur(u));
                     break;
                 case "7":
-                    plusActif();
+                    var opt = logService.utilisateurPlusActif();
+                    if (opt.isPresent())
+                        System.out.println("Utilisateur le plus actif : " + opt.get().getKey() + " ("
+                                + opt.get().getValue() + " actions)");
+                    else
+                        System.out.println("(aucun log)");
                     break;
                 case "8":
-                    repartition();
+                    System.out.println("Répartition des actions par type : " + logService.repartitionParAction());
                     break;
-
+                case "0":
+                    dansMenu = false;
+                    break;
                 default:
-                    System.out.println("Choix invalide!");
-                    break;
+                    System.out.println("Choix invalide.");
             }
         }
     }

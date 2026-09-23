@@ -6,7 +6,7 @@ import java.sql.SQLException;
 
 import ma.youcode.lineperm.db.DBConnection;
 
-abstract class AbstractDao implements Dao {
+abstract class AbstractDao <T> implements Dao<T> {
     
     protected  Connection getConnection(){
         return DBConnection.getInstance().getConnection();

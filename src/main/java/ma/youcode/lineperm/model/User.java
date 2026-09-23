@@ -1,28 +1,43 @@
 package ma.youcode.lineperm.model;
-public  class User{
-// variables
-private int id;
-	private final String login;// kayn ghir wahed login l wahed user t instansa
-	private  String passwordHash ;
 
-// constructure
-    public User(String login, String passwordHash){
+public class User {
+    // variables
+    private int id;
+    private final String login;// kayn ghir wahed login l wahed user t instansa
+    private String passwordHash;
+
+    // constructure
+    public User(String login, String passwordHash) {
         this(0, login, passwordHash);
     }
+
     public User(int id, String login, String passwordHash) {
         this.id = id;
         this.login = login;
         this.passwordHash = passwordHash;
     }
 
-//getters
+    // getters
 
-    public int getId() { return id; }
-    public String getLogin(){return login;}
-    public String getPasswordHash(){return passwordHash;}
+    public int getId() {
+        return id;
+    }
 
-// override 
-    public String toString(){
+    public String getLogin() {
+        return login;
+    }
+
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    // setter automatique
+    public void setId(int id) {
+        this.id = id;
+    }
+    
+    // override
+    public String toString() {
         return this.login + ":" + this.passwordHash;
     }
 

@@ -1,15 +1,13 @@
 package ma.youcode.lineperm.dao;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import ma.youcode.lineperm.model.FichierProtege;
 
-public class FichierDao extends AbstractDao {
+public class FichierDao extends AbstractDao<FichierProtege> {
     
     @Override
     public FichierProtege save(FichierProtege f) {

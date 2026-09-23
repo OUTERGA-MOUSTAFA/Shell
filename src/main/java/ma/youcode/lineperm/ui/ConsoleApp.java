@@ -1,15 +1,21 @@
 package ma.youcode.lineperm.ui;
 
+// import java.util.List;
+// import java.util.Map;
+// import java.util.Optional;
+// import java.util.Scanner;
+
+// import ma.youcode.lineperm.model.FichierProtege;
+// import ma.youcode.lineperm.model.User;
+// import ma.youcode.lineperm.service.FileService;
+// import ma.youcode.lineperm.service.LogService;
+// import ma.youcode.lineperm.service.UserService;
+
+import ma.youcode.lineperm.model.FichierProtege;
+import ma.youcode.lineperm.service.LogService;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Scanner;
-
-import ma.youcode.lineperm.model.FichierProtege;
-import ma.youcode.lineperm.model.User;
-import ma.youcode.lineperm.service.FileService;
-import ma.youcode.lineperm.service.LogService;
-import ma.youcode.lineperm.service.UserService;
 
 public class ConsoleApp {
 
@@ -174,6 +180,17 @@ public class ConsoleApp {
         System.out.println("Déconnecté.");// prompt redevient "linperm>"
     }
 
+    // ls
+    private void handleLs() {
+        List<FichierProtege> liste = fileService.lister();
+        if (liste.isEmpty()) {
+            System.out.println("(aucun fichier)");
+            return;
+        }
+        for (FichierProtege f : liste)
+            System.out.println(f.toString());
+    }
+
     // touch
     private void handleTouch(String[] mots) {
         if (mots.length < 2) {
@@ -188,18 +205,7 @@ public class ConsoleApp {
         }
     }
 
-    // Ls
-    private void handleLs() {
-        List<File> liste = fileService.lister();
-        if (liste.isEmpty()) {
-            System.out.println("(aucun fichier)");
-            return;
-        }
-        for (var f : liste)
-            System.out.println(f.toString());
-    }
-
-    // Cat
+    // cat
     private void handleCat(String[] mots) {
         if (mots.length < 2) {
             System.out.println("Usage : cat <nom>");
@@ -211,67 +217,46 @@ public class ConsoleApp {
             System.out.println("Fichier introuvable.");
             return;
         }
-        var f = opt.get();
+        FichierProtege f = opt.get();
         if (!fileService.peutLire(utilisateurConnecte, f)) {
             logService.enregistrer(utilisateurConnecte.getId(), f.getId(), "LECTURE", "REFUSE");
             System.out.println("Permission denied.");
             return;
         }
         logService.enregistrer(utilisateurConnecte.getId(), f.getId(), "LECTURE", "OK");
-        System.out.println("(contenu du fichier — non stocké en BDD dans cette version)");
+        System.out.println("(contenu non stocké en BDD dans cette version)");
     }
 
-    // Nano
+    // nano
     private void handleNano(String[] mots) {
         if (mots.length < 2) {
             System.out.println("Usage : nano <nom>");
             return;
         }
         String nom = mots[1];
-
-        if (!fileService.existe(nom)) {
-            System.out.println("Fichier introuvable. Utilisez 'touch' d'abord.");
+        var opt = fileService.find(nom);
+        if (opt.isEmpty()) {
+            System.out.println("Fichier introuvable.");
             return;
         }
-        // Vérifie le droit w AVANT l'édition
-        if (!fileService.peutEcrire(nom, utilisateurConnecte)) {
+        FichierProtege f = opt.get();
+        if (!fileService.peutEcrire(utilisateurConnecte, f)) {
             System.out.println("Permission denied.");
             return;
         }
-
         System.out.println("--- Mode édition : " + nom + " ---");
-
-        // Cas limite : w sans r → on masque le contenu actuel
-        if (!fileService.peutLire(nom, utilisateurConnecte)) {
-            System.out.println("(contenu masqué — vous n'avez pas le droit de lecture)");
-        } else {
-            String contenuActuel = fileService.cat(nom, utilisateurConnecte);
-            if (contenuActuel == null || contenuActuel.isEmpty()) {
-                System.out.println("(fichier vide)");
-            } else {
-                System.out.print(contenuActuel);
-                if (!contenuActuel.endsWith("\n"))
-                    System.out.println();
-            }
-        }
-
-        System.out.println("--- Saisis ton texte. Tape EOF seul sur une ligne pour enregistrer. ---");
-
+        System.out.println("--- Tape EOF seul sur une ligne pour terminer. ---");
         StringBuilder sb = new StringBuilder();
-        int nbLignes = 0;
         while (true) {
             String l = scanner.nextLine();
             if (l.equals("EOF"))
                 break;
             sb.append(l).append("\n");
-            nbLignes++;
         }
-
-        fileService.nano(nom, sb.toString(), utilisateurConnecte);
-        System.out.println("Fichier '" + nom + "' enregistré (" + nbLignes + " ligne(s)).");
+        System.out.println("Fichier '" + nom + "' édité (contenu non persistant dans cette version).");
     }
 
-    // Chmod
+    // chmod
     private void handleChmod(String[] mots) {
         if (mots.length < 3) {
             System.out.println("Usage : chmod <r|w|d|-r|-w|-d> <nom>");
@@ -285,7 +270,7 @@ public class ConsoleApp {
             System.out.println("Fichier introuvable.");
             return;
         }
-        var f = opt.get();
+        FichierProtege f = opt.get();
 
         if (!fileService.estProprietaire(utilisateurConnecte, f)) {
             System.out.println("Permission denied.");
@@ -308,8 +293,7 @@ public class ConsoleApp {
     }
 
     // Stats
-    public void handleStats() {
-
+    private void handleStats() {
         System.out.println("Bienvenue dans LogAnalyzer. Choisissez une statistique par son numéro.");
         boolean dansMenu = true;
         while (dansMenu) {
@@ -340,12 +324,13 @@ public class ConsoleApp {
                     System.out.println("Accès refusés pour " + u + " : " + logService.refusesParUtilisateur(u));
                     break;
                 case "7":
-                    var opt = logService.utilisateurPlusActif();
-                    if (opt.isPresent())
-                        System.out.println("Utilisateur le plus actif : " + opt.get().getKey() + " ("
-                                + opt.get().getValue() + " actions)");
-                    else
+                    Optional<Map.Entry<String, Long>> opt2 = logService.utilisateurPlusActif();
+                    if (opt2.isPresent()) {
+                        System.out.println("Utilisateur le plus actif : " + opt2.get().getKey()
+                                + " (" + opt2.get().getValue() + " actions)");
+                    } else {
                         System.out.println("(aucun log)");
+                    }
                     break;
                 case "8":
                     System.out.println("Répartition des actions par type : " + logService.repartitionParAction());

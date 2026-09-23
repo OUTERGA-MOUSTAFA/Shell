@@ -4,7 +4,7 @@ import  java.sql.*;
 import java.util.*;
 
 import ma.youcode.lineperm.model.AccessLog;
-public class LogDao extends AbstractDao {
+public class LogDao extends AbstractDao<AccessLog>  {
 
     @Override
     public AccessLog save(AccessLog l) {

@@ -5,17 +5,13 @@ package ma.youcode.lineperm.ui;
 // import java.util.Optional;
 // import java.util.Scanner;
 
-// import ma.youcode.lineperm.model.FichierProtege;
-// import ma.youcode.lineperm.model.User;
-// import ma.youcode.lineperm.service.FileService;
-// import ma.youcode.lineperm.service.LogService;
-// import ma.youcode.lineperm.service.UserService;
-
+import ma.youcode.lineperm.model.User;
+import ma.youcode.lineperm.service.FileService;
+import ma.youcode.lineperm.service.UserService;
 import ma.youcode.lineperm.model.FichierProtege;
 import ma.youcode.lineperm.service.LogService;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+
+import java.util.*;
 
 public class ConsoleApp {
 
@@ -294,7 +290,6 @@ public class ConsoleApp {
 
     // Stats
     private void handleStats() {
-        System.out.println("Bienvenue dans LogAnalyzer. Choisissez une statistique par son numéro.");
         boolean dansMenu = true;
         while (dansMenu) {
             afficherMenu();

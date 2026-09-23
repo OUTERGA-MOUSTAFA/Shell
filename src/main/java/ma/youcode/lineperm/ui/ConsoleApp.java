@@ -190,7 +190,7 @@ public class ConsoleApp {
 
     // Ls
     private void handleLs() {
-        var liste = fileService.lister();
+        List<File> liste = fileService.lister();
         if (liste.isEmpty()) {
             System.out.println("(aucun fichier)");
             return;

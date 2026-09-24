@@ -65,6 +65,7 @@ public class DBConnection {
                 proprietaire_id INTEGER NOT NULL,
                 droits_proprio TEXT NOT NULL DEFAULT 'rwd',
                 droits_autres  TEXT NOT NULL DEFAULT '---',
+                contenu TEXT DEFAULT '',
                 FOREIGN KEY (proprietaire_id) REFERENCES users(id)
             )
         """;

@@ -8,6 +8,7 @@ import ma.youcode.lineperm.service.LogService;
 
 import java.util.*;
 import java.util.Optional;
+
 public class ConsoleApp {
 
     private final UserService userService = new UserService();// charger() -> lit users.txt
@@ -110,7 +111,7 @@ public class ConsoleApp {
     // Afficher Prompt
     private void afficherPrompt() {
         if (utilisateurConnecte != null) {
-            System.out.print(utilisateurConnecte.getLogin() + "@linperm>wrd| ");
+            System.out.print(utilisateurConnecte.getLogin() + "@linperm> ");
         } else {
             System.out.print("linperm> ");
         }
@@ -215,7 +216,14 @@ public class ConsoleApp {
             return;
         }
         logService.enregistrer(utilisateurConnecte.getId(), f.getId(), "LECTURE", "OK");
-        System.out.println("(contenu non stocké en BDD dans cette version)");
+        String contenu = fileService.lireContenu(f);
+        if (contenu.isEmpty()) {
+            System.out.println("(fichier vide)");
+        } else {
+            System.out.print(contenu);
+            if (!contenu.endsWith("\n"))
+                System.out.println();
+        }
     }
 
     // nano
@@ -235,16 +243,37 @@ public class ConsoleApp {
             System.out.println("Permission denied.");
             return;
         }
+
         System.out.println("--- Mode édition : " + nom + " ---");
+
+        // Cas limite : w sans r → contenu masqué
+        if (!fileService.peutLire(utilisateurConnecte, f)) {
+            System.out.println("(contenu masqué — vous n'avez pas le droit de lecture)");
+        } else {
+            String actuel = fileService.lireContenu(f);
+            if (actuel.isEmpty()) {
+                System.out.println("(fichier vide)");
+            } else {
+                System.out.print(actuel);
+                if (!actuel.endsWith("\n"))
+                    System.out.println();
+            }
+        }
+
         System.out.println("--- Tape EOF seul sur une ligne pour terminer. ---");
+
         StringBuilder sb = new StringBuilder();
+        int nbLignes = 0;
         while (true) {
             String l = scanner.nextLine();
             if (l.equals("EOF"))
                 break;
             sb.append(l).append("\n");
+            nbLignes++;
         }
-        System.out.println("Fichier '" + nom + "' édité (contenu non persistant dans cette version).");
+
+        fileService.updateContenu(f, sb.toString());
+        System.out.println("Fichier '" + nom + "' enregistré (" + nbLignes + " ligne(s)).");
     }
 
     // chmod
@@ -354,53 +383,57 @@ public class ConsoleApp {
     private final LogService logService = new LogService();
 
     // public void totalActions() {
-    //     System.out.println("Nombre total d'actions : " + logService.TotalActions());
+    // System.out.println("Nombre total d'actions : " + logService.TotalActions());
     // }
 
     // private void totalRefuses() {
-    //     System.out.println("Accès refusés : " + logService.TotalRefuses());
+    // System.out.println("Accès refusés : " + logService.TotalRefuses());
     // }
 
     // private void utilisateurs() {
-    //     System.out.println("Accès refusés : " + logService.Utilisateurs());
+    // System.out.println("Accès refusés : " + logService.Utilisateurs());
     // }
 
     // private void actionsParUser() {
-    //     System.out.println("Actions par utilisateur : " + logService.ActionsParUser());
+    // System.out.println("Actions par utilisateur : " +
+    // logService.ActionsParUser());
     // }
 
     // private void top3() {
-    //     List<Map.Entry<String, Long>> top3 = logService.Top3Fichiers();
-    //     if (top3.isEmpty()) {
-    //         System.out.println("(aucune lecture enregistrée)");
-    //         return;
-    //     }
-    //     System.out.println("Top 3 des fichiers consultés :");
-    //     int rang = 1;
-    //     for (Map.Entry<String, Long> e : top3) {
-    //         System.out.println("  " + rang + ". " + e.getKey() + " (" + e.getValue() + " lectures)");
-    //         rang++;
-    //     }
+    // List<Map.Entry<String, Long>> top3 = logService.Top3Fichiers();
+    // if (top3.isEmpty()) {
+    // System.out.println("(aucune lecture enregistrée)");
+    // return;
+    // }
+    // System.out.println("Top 3 des fichiers consultés :");
+    // int rang = 1;
+    // for (Map.Entry<String, Long> e : top3) {
+    // System.out.println(" " + rang + ". " + e.getKey() + " (" + e.getValue() + "
+    // lectures)");
+    // rang++;
+    // }
     // }
 
     // private void refusesUser() {
-    //     System.out.print("Nom de l'utilisateur : ");
-    //     String u = scanner.nextLine().trim();
-    //     long n = logService.RefusesParUtilisateur(u);
-    //     System.out.println("Accès refusés pour " + u + " : " + n);
+    // System.out.print("Nom de l'utilisateur : ");
+    // String u = scanner.nextLine().trim();
+    // long n = logService.RefusesParUtilisateur(u);
+    // System.out.println("Accès refusés pour " + u + " : " + n);
     // }
 
     // private void plusActif() {
-    //     Optional<Map.Entry<String, Long>> opt = logService.UtilisateurPlusActif();
-    //     if (opt.isPresent()) {
-    //         Map.Entry<String, Long> e = opt.get();
-    //         System.out.println("Utilisateur le plus actif : " + e.getKey() + " (" + e.getValue() + " actions)");
-    //     } else {
-    //         System.out.println("(aucun log)");
-    //     }
+    // Optional<Map.Entry<String, Long>> opt = logService.UtilisateurPlusActif();
+    // if (opt.isPresent()) {
+    // Map.Entry<String, Long> e = opt.get();
+    // System.out.println("Utilisateur le plus actif : " + e.getKey() + " (" +
+    // e.getValue() + " actions)");
+    // } else {
+    // System.out.println("(aucun log)");
+    // }
     // }
 
     // private void repartition() {
-    //     System.out.println("Répartition des actions par type : " + logService.RepartitionParAction());
+    // System.out.println("Répartition des actions par type : " +
+    // logService.RepartitionParAction());
     // }
 }

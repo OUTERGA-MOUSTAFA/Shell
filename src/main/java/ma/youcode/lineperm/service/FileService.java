@@ -65,4 +65,13 @@ public class FileService {
         f.setDroitsAutres(nouveau);
         return fichierDao.updateDroits(f.getId(), f.getDroitsProprio(), nouveau);
     }
+
+    public boolean updateContenu(FichierProtege f, String contenu) {
+        f.setContenu(contenu);
+        return fichierDao.updateContenu(f.getId(), contenu);
+    }
+
+    public String lireContenu(FichierProtege f) {
+        return f.getContenu() == null ? "" : f.getContenu();
+    }
 }

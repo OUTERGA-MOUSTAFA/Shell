@@ -25,7 +25,8 @@ public class LogDao extends AbstractDao<AccessLog>  {
     @Override
     public Optional<AccessLog> findById(int id) {
         String sql = "SELECT * FROM logs WHERE id = ?";
-        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) return Optional.of(mapRow(rs));
@@ -40,7 +41,8 @@ public class LogDao extends AbstractDao<AccessLog>  {
     public List<AccessLog> findAll() {
         List<AccessLog> list = new ArrayList<>();
         String sql = "SELECT * FROM logs ORDER BY date_action DESC";
-        try (PreparedStatement ps = getConnection().prepareStatement(sql);
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) list.add(mapRow(rs));
         } catch (SQLException e) {
@@ -80,7 +82,8 @@ public class LogDao extends AbstractDao<AccessLog>  {
             JOIN logs l ON l.utilisateur_id = u.id
             ORDER BY u.login
         """;
-        try (PreparedStatement ps = getConnection().prepareStatement(sql);
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) list.add(rs.getString("login"));
         } catch (SQLException e) {
@@ -99,7 +102,8 @@ public class LogDao extends AbstractDao<AccessLog>  {
             GROUP BY u.login
             ORDER BY n DESC
         """;
-        try (PreparedStatement ps = getConnection().prepareStatement(sql);
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) map.put(rs.getString("login"), rs.getLong("n"));
         } catch (SQLException e) {
@@ -120,7 +124,8 @@ public class LogDao extends AbstractDao<AccessLog>  {
             ORDER BY n DESC
             LIMIT 3
         """;
-        try (PreparedStatement ps = getConnection().prepareStatement(sql);
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 list.add(new AbstractMap.SimpleEntry<>(rs.getString("nom"), rs.getLong("n")));
@@ -138,7 +143,8 @@ public class LogDao extends AbstractDao<AccessLog>  {
             JOIN users u ON u.id = l.utilisateur_id
             WHERE u.login = ? AND l.resultat = 'REFUSE'
         """;
-        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, login);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) return rs.getLong(1);
@@ -159,7 +165,8 @@ public class LogDao extends AbstractDao<AccessLog>  {
             ORDER BY n DESC
             LIMIT 1
         """;
-        try (PreparedStatement ps = getConnection().prepareStatement(sql);
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {
                 return Optional.of(new AbstractMap.SimpleEntry<>(
@@ -175,7 +182,8 @@ public class LogDao extends AbstractDao<AccessLog>  {
     public Map<String, Long> repartitionParAction() {
         Map<String, Long> map = new LinkedHashMap<>();
         String sql = "SELECT action, COUNT(*) AS n FROM logs GROUP BY action ORDER BY n DESC";
-        try (PreparedStatement ps = getConnection().prepareStatement(sql);
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) map.put(rs.getString("action"), rs.getLong("n"));
         } catch (SQLException e) {
@@ -187,7 +195,8 @@ public class LogDao extends AbstractDao<AccessLog>  {
     
     // HELPERS
     private long scalar(String sql) {
-        try (PreparedStatement ps = getConnection().prepareStatement(sql);
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             if (rs.next()) return rs.getLong(1);
         } catch (SQLException e) {

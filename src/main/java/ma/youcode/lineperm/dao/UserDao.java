@@ -12,7 +12,8 @@ public class UserDao extends AbstractDao<User> {
     @Override
     public User save(User u) {
         String sql = "INSERT INTO users(login, password_hash) VALUES (?, ?)";
-        try (PreparedStatement ps = getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, u.getLogin());
             ps.setString(2, u.getPasswordHash());
             ps.executeUpdate();
@@ -29,7 +30,8 @@ public class UserDao extends AbstractDao<User> {
     @Override
     public Optional<User> findById(int id) {
         String sql = "SELECT * FROM users WHERE id = ?";
-        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) return Optional.of(mapRow(rs));
@@ -44,7 +46,8 @@ public class UserDao extends AbstractDao<User> {
     public List<User> findAll() {
         List<User> list = new ArrayList<>();
         String sql = "SELECT * FROM users";
-        try (PreparedStatement ps = getConnection().prepareStatement(sql);
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) list.add(mapRow(rs));
         } catch (SQLException e) {
@@ -56,7 +59,8 @@ public class UserDao extends AbstractDao<User> {
     @Override
     public boolean delete(int id) {
         String sql = "DELETE FROM users WHERE id = ?";
-        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, id);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -67,7 +71,8 @@ public class UserDao extends AbstractDao<User> {
 
      public Optional<User> findByLogin(String login) {
         String sql = "SELECT * FROM users WHERE login = ?";
-        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, login);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) return Optional.of(mapRow(rs));

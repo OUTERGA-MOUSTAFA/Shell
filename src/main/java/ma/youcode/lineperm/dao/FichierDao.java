@@ -32,7 +32,8 @@ public class FichierDao extends AbstractDao<FichierProtege> {
     @Override
     public Optional<FichierProtege> findById(int id) {
         String sql = "SELECT * FROM fichiers WHERE id = ?";
-        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next())
@@ -48,7 +49,8 @@ public class FichierDao extends AbstractDao<FichierProtege> {
     public List<FichierProtege> findAll() {
         List<FichierProtege> list = new ArrayList<>();
         String sql = "SELECT * FROM fichiers";
-        try (PreparedStatement ps = getConnection().prepareStatement(sql);
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
                 ResultSet rs = ps.executeQuery()) {
             while (rs.next())
                 list.add(mapRow(rs));
@@ -61,7 +63,8 @@ public class FichierDao extends AbstractDao<FichierProtege> {
     @Override
     public boolean delete(int id) {
         String sql = "DELETE FROM fichiers WHERE id = ?";
-        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, id);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -83,7 +86,8 @@ public class FichierDao extends AbstractDao<FichierProtege> {
 
     public boolean updateDroits(int id, String droitsProprio, String droitsAutres) {
         String sql = "UPDATE fichiers SET droits_proprio = ?, droits_autres = ? WHERE id = ?";
-        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, droitsProprio);
             ps.setString(2, droitsAutres);
             ps.setInt(3, id);
@@ -97,7 +101,8 @@ public class FichierDao extends AbstractDao<FichierProtege> {
     public List<FichierProtege> findByProprietaire(int userId) {
         List<FichierProtege> list = new ArrayList<>();
         String sql = "SELECT * FROM fichiers WHERE proprietaire_id = ?";
-        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, userId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next())
@@ -111,7 +116,8 @@ public class FichierDao extends AbstractDao<FichierProtege> {
 
     public Optional<FichierProtege> findByNom(String nom) {
         String sql = "SELECT * FROM fichiers WHERE nom = ?";
-        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, nom);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next())
@@ -125,7 +131,8 @@ public class FichierDao extends AbstractDao<FichierProtege> {
 
     public boolean updateContenu(int id, String contenu) {
         String sql = "UPDATE fichiers SET contenu = ? WHERE id = ?";
-        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, contenu);
             ps.setInt(2, id);
             return ps.executeUpdate() > 0;

@@ -1,7 +1,7 @@
 package ma.youcode.lineperm;
 
 import ma.youcode.lineperm.ui.ConsoleApp;
-
+import ma.youcode.lineperm.db.DBConnection;
 import java.io.PrintStream;
 
 public class Main {

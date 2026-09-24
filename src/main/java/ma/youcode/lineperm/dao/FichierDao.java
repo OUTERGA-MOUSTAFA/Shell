@@ -4,7 +4,6 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 import ma.youcode.lineperm.model.FichierProtege;
 
 public class FichierDao extends AbstractDao<FichierProtege> {
@@ -72,13 +71,12 @@ public class FichierDao extends AbstractDao<FichierProtege> {
     }
 
     private FichierProtege mapRow(ResultSet rs) throws SQLException {
-        
-         FichierProtege f = new FichierProtege(
+        FichierProtege f = new FichierProtege(
                 rs.getInt("id"),
                 rs.getString("nom"),
                 rs.getInt("proprietaire_id"),
                 rs.getString("droits_proprio"),
-                rs.getString("droits_autres") );
+                rs.getString("droits_autres"));
         f.setContenu(rs.getString("contenu"));
         return f;
     }
@@ -123,5 +121,17 @@ public class FichierDao extends AbstractDao<FichierProtege> {
             System.err.println("FichierDao.findByNom : " + e.getMessage());
         }
         return Optional.empty();
+    }
+
+    public boolean updateContenu(int id, String contenu) {
+        String sql = "UPDATE fichiers SET contenu = ? WHERE id = ?";
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setString(1, contenu);
+            ps.setInt(2, id);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("FichierDao.updateContenu : " + e.getMessage());
+            return false;
+        }
     }
 }

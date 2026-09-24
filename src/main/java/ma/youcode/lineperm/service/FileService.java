@@ -6,7 +6,8 @@ import ma.youcode.lineperm.model.AccessLog;
 import ma.youcode.lineperm.model.FichierProtege;
 import ma.youcode.lineperm.model.User;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
 public class FileService {
 
@@ -14,17 +15,13 @@ public class FileService {
     private final LogDao logDao = new LogDao();
 
     public boolean touch(String nom, User user) {
-        if (nom == null || nom.trim().isEmpty())
-            return false;
-        if (nom.contains("/") || nom.contains("\\"))
-            return false;
-        if (fichierDao.findByNom(nom).isPresent())
-            return false;
+        if (nom == null || nom.trim().isEmpty()) return false;
+        if (nom.contains("/") || nom.contains("\\")) return false;
+        if (fichierDao.findByNom(nom).isPresent()) return false;
 
         FichierProtege f = new FichierProtege(nom, user.getId());
         FichierProtege saved = fichierDao.save(f);
-        if (saved == null)
-            return false;
+        if (saved == null) return false;
 
         logDao.save(new AccessLog(user.getId(), saved.getId(), "ECRITURE", "OK"));
         return true;
@@ -59,13 +56,14 @@ public class FileService {
     public boolean chmod(FichierProtege f, char droit, boolean retirer) {
         String d = f.getDroitsAutres();
         char[] c = d.toCharArray();
-        int index = (droit == 'r') ? 0 : (droit == 'w') ? 1 : 2;
-        c[index] = retirer ? '-' : droit;
+        int idx = (droit == 'r') ? 0 : (droit == 'w') ? 1 : 2;
+        c[idx] = retirer ? '-' : droit;
         String nouveau = new String(c);
         f.setDroitsAutres(nouveau);
         return fichierDao.updateDroits(f.getId(), f.getDroitsProprio(), nouveau);
     }
 
+    /** Wrapper simple : met à jour le contenu en mémoire + en BDD. */
     public boolean updateContenu(FichierProtege f, String contenu) {
         f.setContenu(contenu);
         return fichierDao.updateContenu(f.getId(), contenu);

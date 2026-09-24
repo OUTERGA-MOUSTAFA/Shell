@@ -9,7 +9,11 @@ public class Main {
         System.setOut(new PrintStream(System.out, true, "UTF-8"));
         System.setErr(new PrintStream(System.err, true, "UTF-8"));
 
-        ConsoleApp app = new ConsoleApp();
-        app.demarrer();
+       try {
+            ConsoleApp app = new ConsoleApp();
+            app.demarrer();
+        } finally {
+            DBConnection.getInstance().close();
+        }
     }
 }

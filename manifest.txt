@@ -1,3 +1,2 @@
 Main-Class: ma.youcode.lineperm.Main
-Class-Path: lib/jbcrypt-0.4.jar
-
+Class-Path: lib/jbcrypt-0.4.jar lib/sqlite-jdbc-3.53.4.0.jar lib/HikariCP-5.1.0.jar lib/slf4j-api-2.0.9.jar lib/slf4j-simple-2.0.9.jar

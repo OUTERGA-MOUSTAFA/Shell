@@ -1,0 +1,15 @@
+src/main/java/ma/youcode/lineperm/access/ControlerAcces.java
+src/main/java/ma/youcode/lineperm/dao/AbstractDao.java
+src/main/java/ma/youcode/lineperm/dao/Dao.java
+src/main/java/ma/youcode/lineperm/dao/FichierDao.java
+src/main/java/ma/youcode/lineperm/dao/LogDao.java
+src/main/java/ma/youcode/lineperm/dao/UserDao.java
+src/main/java/ma/youcode/lineperm/db/DBConnection.java
+src/main/java/ma/youcode/lineperm/Main.java
+src/main/java/ma/youcode/lineperm/model/AccessLog.java
+src/main/java/ma/youcode/lineperm/model/FichierProtege.java
+src/main/java/ma/youcode/lineperm/model/User.java
+src/main/java/ma/youcode/lineperm/service/FileService.java
+src/main/java/ma/youcode/lineperm/service/LogService.java
+src/main/java/ma/youcode/lineperm/service/UserService.java
+src/main/java/ma/youcode/lineperm/ui/ConsoleApp.java

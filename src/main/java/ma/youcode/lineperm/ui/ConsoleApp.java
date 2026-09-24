@@ -184,16 +184,41 @@ public class ConsoleApp {
     }
 
     // touch
+    // private void handleTouch(String[] mots) {
+    // if (mots.length < 2) {
+    // System.out.println("Usage : touch <nom>");
+    // return;
+    // }
+    // String nom = mots[1];
+    // if (fileService.touch(nom, utilisateurConnecte)) {
+    // System.out.println("Fichier '" + nom + "' créé.");
+    // } else{
+    // System.out.println("Permission denied.");
+    // }
+    // }
+
     private void handleTouch(String[] mots) {
         if (mots.length < 2) {
             System.out.println("Usage : touch <nom>");
             return;
         }
         String nom = mots[1];
-        if (fileService.touch(nom, utilisateurConnecte)) {
-            System.out.println("Fichier '" + nom + "' créé.");
-        } else {
-            System.out.println("Permission denied.");
+
+        FileService.ResultatTouch resultat = fileService.touch(nom, utilisateurConnecte);
+
+        switch (resultat) {
+            case OK:
+                System.out.println("Fichier '" + nom + "' créé.");
+                break;
+            case DEJA_EXISTE:
+                System.out.println("Ce fichier existe déjà.");
+                break;
+            case NOM_INVALIDE:
+                System.out.println("Nom invalide (ne doit pas contenir '/' ni '\\').");
+                break;
+            case ERREUR_BDD:
+                System.out.println("Erreur lors de la création du fichier.");
+                break;
         }
     }
 
@@ -239,27 +264,24 @@ public class ConsoleApp {
             return;
         }
         FichierProtege f = opt.get();
+
+        // === Vérification du droit w AVANT l'édition ===
         if (!fileService.peutEcrire(utilisateurConnecte, f)) {
+            logService.enregistrer(utilisateurConnecte.getId(), f.getId(), "ECRITURE", "REFUSE");
             System.out.println("Permission denied.");
             return;
         }
 
         System.out.println("--- Mode édition : " + nom + " ---");
-
-        // Cas limite : w sans r → contenu masqué
         if (!fileService.peutLire(utilisateurConnecte, f)) {
             System.out.println("(contenu masqué — vous n'avez pas le droit de lecture)");
         } else {
             String actuel = fileService.lireContenu(f);
-            if (actuel.isEmpty()) {
+            if (actuel.isEmpty())
                 System.out.println("(fichier vide)");
-            } else {
+            else
                 System.out.print(actuel);
-                if (!actuel.endsWith("\n"))
-                    System.out.println();
-            }
         }
-
         System.out.println("--- Tape EOF seul sur une ligne pour terminer. ---");
 
         StringBuilder sb = new StringBuilder();
@@ -273,6 +295,9 @@ public class ConsoleApp {
         }
 
         fileService.updateContenu(f, sb.toString());
+
+        // === Log APRÈS succès ===
+        logService.enregistrer(utilisateurConnecte.getId(), f.getId(), "ECRITURE", "OK");
         System.out.println("Fichier '" + nom + "' enregistré (" + nbLignes + " ligne(s)).");
     }
 
@@ -293,6 +318,7 @@ public class ConsoleApp {
         FichierProtege f = opt.get();
 
         if (!fileService.estProprietaire(utilisateurConnecte, f)) {
+            logService.enregistrer(utilisateurConnecte.getId(), f.getId(), "ECRITURE", "REFUSE");
             System.out.println("Permission denied.");
             return;
         }
@@ -309,6 +335,9 @@ public class ConsoleApp {
         }
         String avant = f.droitsToString();
         fileService.chmod(f, droit, retirer);
+
+        // === Log succès ===
+        logService.enregistrer(utilisateurConnecte.getId(), f.getId(), "ECRITURE", "OK");
         System.out.println(nom + " : " + avant + " --> " + f.droitsToString());
     }
 
@@ -318,7 +347,7 @@ public class ConsoleApp {
         boolean dansMenu = true;
         while (dansMenu) {
             afficherMenu();
-            System.out.print("Choix : ");
+
             String choix = scanner.nextLine().trim();
             switch (choix) {
                 case "1":

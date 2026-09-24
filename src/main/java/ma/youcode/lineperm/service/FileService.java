@@ -14,17 +14,25 @@ public class FileService {
     private final FichierDao fichierDao = new FichierDao();
     private final LogDao logDao = new LogDao();
 
-    public boolean touch(String nom, User user) {
-        if (nom == null || nom.trim().isEmpty()) return false;
-        if (nom.contains("/") || nom.contains("\\")) return false;
-        if (fichierDao.findByNom(nom).isPresent()) return false;
+    public enum ResultatTouch {
+        OK, DEJA_EXISTE, NOM_INVALIDE, ERREUR_BDD
+    }
+
+    public ResultatTouch touch(String nom, User user) {
+        if (nom == null || nom.trim().isEmpty())
+            return ResultatTouch.NOM_INVALIDE;
+        if (nom.contains("/") || nom.contains("\\"))
+            return ResultatTouch.NOM_INVALIDE;
+        if (fichierDao.findByNom(nom).isPresent())
+            return ResultatTouch.DEJA_EXISTE;
 
         FichierProtege f = new FichierProtege(nom, user.getId());
         FichierProtege saved = fichierDao.save(f);
-        if (saved == null) return false;
+        if (saved == null)
+            return ResultatTouch.ERREUR_BDD;
 
         logDao.save(new AccessLog(user.getId(), saved.getId(), "ECRITURE", "OK"));
-        return true;
+        return ResultatTouch.OK;
     }
 
     public List<FichierProtege> lister() {

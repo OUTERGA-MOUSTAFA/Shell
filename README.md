@@ -113,6 +113,6 @@ src/main/java/ma/youcode/lineperm/
 
 ## Compile
 javac -d target/classes -cp "lib/*" $(find src/main/java -name "*.java")
-
+java -cp "target/classes;lib/*" ma.youcode.lineperm.Main
 ## Build JAR
 jar cfm LinePermission.jar manifest.txt -C target/classes .
